@@ -1,0 +1,38 @@
+
+<html>
+  <head>
+    <!--Estilo de Material Design Lite -->
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.0.8/angular.min.js"></script><!-- load angular -->
+    <!--script src="../node_modules/angular/angular.js"></script>
+    <script src="../node_modules/angular-arioa/angular-aria.js"></script>
+    <script src="../node_modules/angular-animate/angular-animate.js"></script>
+    <script src="../node_modules/angular-material/angular-material.js"></script>
+    <script>
+
+        // Include app dependency on ngMaterial
+
+        angular.module( 'MiApp', [ 'ngMaterial' ] )
+            .controller("MiControlador", YourController );
+
+    </script-->
+
+    <!--script src="..\public\javascripts\inicio.js"></script-->
+    <title>TFG</title>
+  </head>
+  <body>
+    <h1>Bienvenido a {{title}}</h1>
+
+    <div ng-app="MiApp" ng-controller="MiControlador">
+      <ul>
+        <li ng-repeat="x in products">Eoo {{x}}</li>
+      </ul>
+
+    </div>
+
+    <!--button class="mdl-button mdl-js-button mdl-button--fab mdl-button--colored">
+      <i class="material-icons">add</i>
+    </button-->
+
+  </body>
+</html>
