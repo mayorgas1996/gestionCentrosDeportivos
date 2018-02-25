@@ -65,7 +65,7 @@ router.post('/admins/:id',(req,res) => {
     else{
       res.status(500).json({
         success: false,
-        mensaje: 'Error deleting user'
+        mensaje: 'Error deleting admin'
       })
     }
   })
