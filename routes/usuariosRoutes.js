@@ -10,6 +10,23 @@ router.get('/usuarios', (req,res) => {
   })
 });
 
+router.get('/usuarios/:id', (req,res) => {
+  var id = req.params.id;
+  Usuario.getUsuario(id,(err,data) =>{
+    console.log("Err contiene" + err)
+    if(err != null){
+      res.status(500).json({
+        success: false,
+        mensaje: 'Error buscando usuario ' + req.params.id
+      })
+    }
+    else{
+      res.status(200).json(data);
+    }
+
+  })
+});
+
 router.post('/usuarios',(req,res) => {
   const usuarioData = {
     ID_USUARIO   : null,
@@ -27,7 +44,6 @@ router.post('/usuarios',(req,res) => {
     PROVINCIA    : req.body.provincia,
 
   };
-  console.log("Datos usuario antes de insertar " + usuarioData.PASSWORD);
   Usuario.insertUsuario(usuarioData, (err, data) =>{
     if(data && data.insertId){
       res.status(200).json({

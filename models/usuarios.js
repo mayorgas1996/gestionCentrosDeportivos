@@ -22,6 +22,22 @@ usuarioModel.getUsuarios = (callback) =>{
   }
 };
 
+usuarioModel.getUsuario = (id_usuario,callback) =>{
+  if(connection){
+
+    const sql = `SELECT * FROM usuario WHERE ID_USUARIO = ${connection.escape(id_usuario)}`
+
+    connection.query(sql,id_usuario,(err, row)=>{
+
+        if(err){
+          throw err;
+        }
+        else{
+          callback(null,row);
+        }
+    });
+  }
+};
 
 usuarioModel.insertUsuario = (usuarioData, callback) =>{
   if(connection){
