@@ -1,6 +1,10 @@
 var express = require('express');
 var router = express.Router();
 
+//Para encriptar la contraseña
+var bcrypt = require('bcryptjs');
+var salt = bcrypt.genSaltSync(2);
+
 const Usuario = require('../models/usuarios');
 
 /* GET users listing. */
@@ -28,9 +32,10 @@ router.get('/usuarios/:id', (req,res) => {
 });
 
 router.post('/usuarios',(req,res) => {
+
   const usuarioData = {
     ID_USUARIO   : null,
-    PASSWORD     : req.body.password,
+    PASSWORD     : bcrypt.hashSync(req.body.password, salt),
     NOMBRE       : req.body.nombre,
     EMAIL        : req.body.email,
     SEXO         : req.body.sexo,
