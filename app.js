@@ -11,6 +11,7 @@ var usuarios = require('./routes/usuariosRoutes');
 var tecnicos = require('./routes/tecnicosRoutes');
 var directores = require('./routes/directoresRoutes');
 var centros_deportivos = require('./routes/centros_deportivosRoutes');
+var pistas_deportivas = require('./routes/pistas_deportivasRoutes');
 
 var engines = require('consolidate');
 
@@ -76,6 +77,7 @@ app.use('/',usuarios);
 app.use('/',tecnicos);
 app.use('/',directores);
 app.use('/',centros_deportivos);
+app.use('/',pistas_deportivas);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
