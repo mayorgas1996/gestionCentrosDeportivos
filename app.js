@@ -10,6 +10,7 @@ var admins = require('./routes/adminRoutes');
 var usuarios = require('./routes/usuariosRoutes');
 var tecnicos = require('./routes/tecnicosRoutes');
 var directores = require('./routes/directoresRoutes');
+var centros_deportivos = require('./routes/centros_deportivosRoutes');
 
 var engines = require('consolidate');
 
@@ -74,6 +75,7 @@ app.use('/', admins);
 app.use('/',usuarios);
 app.use('/',tecnicos);
 app.use('/',directores);
+app.use('/',centros_deportivos);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
