@@ -25,62 +25,83 @@ router.get('/admins', ensureToken, (req,res) => {
 
 });
 
-router.post('/admins',(req,res) => {
-  const adminData = {
-    ID_ADMIN: null,
-    PASSWORD: bcrypt.hashSync(req.body.password, salt),
-    NOMBRE  : req.body.nombre,
-    EMAIL   : req.body.email
-  };
+router.post('/admins',ensureToken,(req,res) => {
 
-  Admin.insertAdmin(adminData, (err, data) =>{
-    if(data && data.insertId){
-      res.status(200).json({
-        success: true,
-        mensaje: 'Administrador registrado correctamente',
-        data: data
-      })
+  jwt.verify(req.token,'administrador',(err,data) =>{
+    if(err){
+      res.sendStatus(403); //Acceso no permitido
     }
     else{
-      res.status(500).json({
-        success: false,
-        mensaje: 'Error'
+      const adminData = {
+        ID_ADMIN: null,
+        PASSWORD: bcrypt.hashSync(req.body.password, salt),
+        NOMBRE  : req.body.nombre,
+        EMAIL   : req.body.email
+      };
+
+      Admin.insertAdmin(adminData, (err, data) =>{
+        if(data && data.insertId){
+          res.status(200).json({
+            success: true,
+            mensaje: 'Administrador registrado correctamente',
+            data: data
+          })
+        }
+        else{
+          res.status(500).json({
+            success: false,
+            mensaje: 'Error'
+          })
+        }
       })
     }
   })
-
 })
 
-router.put('/admins/:id',(req,res) => {
-  const adminData = {
-    ID_ADMIN: req.params.id,
-    PASSWORD: bcrypt.hashSync(req.body.password, salt),
-    NOMBRE  : req.body.nombre,
-    EMAIL   : req.body.email
-  };
-  Admin.updateAdmin(adminData,(err,data) => {
-    if(data && data.mensaje){
-      res.status(200).json(data);
+router.put('/admins/:id',ensureToken,(req,res) => {
+  jwt.verify(req.token,'administrador',(err,data) =>{
+    if(err){
+      res.sendStatus(403); //Acceso no permitido
     }
     else{
-      res.status(500).json({
-        success: false,
-        mensaje: 'Error'
+      const adminData = {
+        ID_ADMIN: req.params.id,
+        PASSWORD: bcrypt.hashSync(req.body.password, salt),
+        NOMBRE  : req.body.nombre,
+        EMAIL   : req.body.email
+      };
+      Admin.updateAdmin(adminData,(err,data) => {
+        if(data && data.mensaje){
+          res.status(200).json(data);
+        }
+        else{
+          res.status(500).json({
+            success: false,
+            mensaje: 'Error'
+          })
+        }
+
       })
     }
-
   })
 })
 
-router.post('/admins/:id',(req,res) => {
-  Admin.deleteAdmin(req.params.id, (err,data) =>{
-    if(data && data.mensaje){
-      res.status(200).json(data);
+router.post('/admins/:id',ensureToken,(req,res) => {
+  jwt.verify(req.token,'administrador',(err,data) =>{
+    if(err){
+      res.sendStatus(403); //Acceso no permitido
     }
     else{
-      res.status(500).json({
-        success: false,
-        mensaje: 'Error deleting admin'
+      Admin.deleteAdmin(req.params.id, (err,data) =>{
+        if(data && data.mensaje){
+          res.status(200).json(data);
+        }
+        else{
+          res.status(500).json({
+            success: false,
+            mensaje: 'Error deleting admin'
+          })
+        }
       })
     }
   })
@@ -91,13 +112,13 @@ function ensureToken(req, res, next){
   const bearerHeader = req.headers['authorization'];
   //Si la cabecera contiene algún dato
   if(typeof bearerHeader !== 'undefined'){
-      const bearer = bearerHeader.split(" ");
-      const bearerToken = bearer[1];
-      req.token = bearerToken;
-      next();
+    const bearer = bearerHeader.split(" ");
+    const bearerToken = bearer[1];
+    req.token = bearerToken;
+    next();
   }
   else{
-      res.sendStatus(403);
+    res.sendStatus(403);
   }
 
 }
