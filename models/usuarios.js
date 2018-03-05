@@ -109,7 +109,6 @@ usuarioModel.deleteUsuario = (idUsuario, callback) => {
 
 usuarioModel.login = (usuarioData, callback) => {
   if(connection){
-    console.log("Buscando si existe algun usuario con id = " + usuarioData.ID_USUARIO + " y contraseña: " +  usuarioData.PASSWORD);
     const sql = `SELECT * FROM usuario WHERE
     ID_USUARIO =  ${connection.escape(usuarioData.ID_USUARIO)}`;
 
@@ -131,7 +130,7 @@ usuarioModel.login = (usuarioData, callback) => {
         }
       }
     })
-    
+
   }
 }
 module.exports = usuarioModel;

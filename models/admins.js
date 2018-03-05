@@ -1,5 +1,9 @@
 var mysql      = require('mysql');
 
+//Para encriptar la contraseña
+var bcrypt = require('bcryptjs');
+var salt = bcrypt.genSaltSync(2);
+
 var connection = mysql.createConnection({
   host     : 'localhost',
   user     : 'root',
@@ -75,6 +79,33 @@ adminModel.deleteAdmin = (idAdmin, callback) => {
     })
   }
 
+}
+
+adminModel.login = (adminData, callback) => {
+  if(connection){
+    const sql = `SELECT * FROM administrador WHERE
+    ID_ADMIN =  ${connection.escape(adminData.ID_ADMIN)}`;
+
+    connection.query(sql,(err, row)=>{
+
+      if(err){
+        throw err;
+      }
+      else if(row.length == 0){
+        callback('Administrador no encontrado',null);
+      }
+      else{
+        var admin = row[0];
+        if(bcrypt.compareSync(adminData.PASSWORD,admin.PASSWORD)){
+          callback(null,row);
+        }
+        else{
+          callback('Password incorrecto',null);
+        }
+      }
+    })
+
+  }
 }
 
 module.exports = adminModel;

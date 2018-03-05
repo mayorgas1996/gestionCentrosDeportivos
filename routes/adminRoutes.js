@@ -1,23 +1,34 @@
 var express = require('express');
 var router = express.Router();
+const auth = require('./autenticacion');
 
 //Para encriptar la contraseña
 var bcrypt = require('bcryptjs');
 var salt = bcrypt.genSaltSync(2);
+//Para creación de token y comprobación -> Sesiones
+var jwt = require('jsonwebtoken');
 
 const Admin = require('../models/admins');
 
 /* GET users listing. */
-router.get('/admins', (req,res) => {
-  Admin.getAdmins((err,data) =>{
-    res.status(200).json(data);
+router.get('/admins', ensureToken, (req,res) => {
+  jwt.verify(req.token,'administrador',(err,data) =>{
+    if(err){
+      res.sendStatus(403); //Acceso no permitido
+    }
+    else{
+      Admin.getAdmins((err,data) =>{
+        res.status(200).json(data);
+      })
+    }
   })
+
 });
 
 router.post('/admins',(req,res) => {
   const adminData = {
     ID_ADMIN: null,
-    PASSWORD: req.body.password,
+    PASSWORD: bcrypt.hashSync(req.body.password, salt),
     NOMBRE  : req.body.nombre,
     EMAIL   : req.body.email
   };
@@ -75,5 +86,20 @@ router.post('/admins/:id',(req,res) => {
   })
 });
 
+//Middleware que nos comprueba que un administrador ya ha iniciado sesión
+function ensureToken(req, res, next){
+  const bearerHeader = req.headers['authorization'];
+  //Si la cabecera contiene algún dato
+  if(typeof bearerHeader !== 'undefined'){
+      const bearer = bearerHeader.split(" ");
+      const bearerToken = bearer[1];
+      req.token = bearerToken;
+      next();
+  }
+  else{
+      res.sendStatus(403);
+  }
+
+}
 
 module.exports = router;

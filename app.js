@@ -36,9 +36,7 @@ console.log("Intentamos realizar query.");
 
 connection.query("SELECT * FROM administrador", function (err, result) {
   if (err) throw err;
-  var rows = JSON.parse(JSON.stringify(result[0]));
-
-  console.log("Resultado: " + rows.NOMBRE + " | " + rows.EMAIL );
+  
 });
 
 console.log("Intentamos finalizar la conexión con la base de datos");

@@ -31,7 +31,6 @@ router.get('/tecnicos/:id', (req,res) => {
 });
 
 router.post('/tecnicos',(req,res) => {
-  console.log("Eeeeooooooooo")
   const tecnicoData = {
     ID_TECNICO   : null,
     PASSWORD : bcrypt.hashSync(req.body.password, salt),
@@ -71,7 +70,7 @@ router.post('/tecnicos',(req,res) => {
 router.put('/tecnicos/:id',(req,res) => {
   const tecnicoData = {
     ID_TECNICO     : req.params.id,
-    PASSWORD       : req.body.password,
+    PASSWORD       : bcrypt.hashSync(req.body.password, salt),
     NOMBRE         : req.body.nombre,
     EMAIL          : req.body.email,
   FECHA_NACIMIENTO : req.body.fecha_nac,

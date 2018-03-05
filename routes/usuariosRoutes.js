@@ -70,7 +70,7 @@ router.post('/usuarios',(req,res) => {
 router.put('/usuarios/:id',(req,res) => {
   const usuarioData = {
     ID_USUARIO   : req.params.id,
-    PASSWORD     : req.body.password,
+    PASSWORD     : bcrypt.hashSync(req.body.password, salt),
     NOMBRE       : req.body.nombre,
     EMAIL        : req.body.email,
     SEXO         : req.body.sexo,
