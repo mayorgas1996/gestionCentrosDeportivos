@@ -1,5 +1,9 @@
 var mysql      = require('mysql');
 
+//Para encriptar la contraseña
+var bcrypt = require('bcryptjs');
+var salt = bcrypt.genSaltSync(2);
+
 var connection = mysql.createConnection({
   host     : 'localhost',
   user     : 'root',
@@ -99,6 +103,33 @@ directorModel.deleteDirector = (idDirector, callback) => {
     })
   }
 
+}
+
+directorModel.login = (directorData, callback) => {
+  if(connection){
+    const sql = `SELECT * FROM director WHERE
+    ID_DIRECTOR =  ${connection.escape(directorData.ID_DIRECTOR)}`;
+
+    connection.query(sql,(err, row)=>{
+
+      if(err){
+        throw err;
+      }
+      else if(row.length == 0){
+        callback('Director no encontrado',null);
+      }
+      else{
+        var director = row[0];
+        if(bcrypt.compareSync(directorData.PASSWORD,director.PASSWORD)){
+          callback(null,row);
+        }
+        else{
+          callback('Password incorrecto',null);
+        }
+      }
+    })
+
+  }
 }
 
 module.exports = directorModel;

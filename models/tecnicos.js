@@ -1,5 +1,9 @@
 var mysql      = require('mysql');
 
+//Para encriptar la contraseña
+var bcrypt = require('bcryptjs');
+var salt = bcrypt.genSaltSync(2);
+
 var connection = mysql.createConnection({
   host     : 'localhost',
   user     : 'root',
@@ -104,5 +108,33 @@ tecnicoModel.deleteTecnico = (id_tecnico, callback) => {
   }
 
 }
+
+tecnicoModel.login = (tecnicoData, callback) => {
+  if(connection){
+    const sql = `SELECT * FROM tecnico WHERE
+    ID_TECNICO =  ${connection.escape(tecnicoData.ID_TECNICO)}`;
+
+    connection.query(sql,(err, row)=>{
+
+      if(err){
+        throw err;
+      }
+      else if(row.length == 0){
+        callback('Tecnico no encontrado',null);
+      }
+      else{
+        var tecnico = row[0];
+        if(bcrypt.compareSync(tecnicoData.PASSWORD,tecnico.PASSWORD)){
+          callback(null,row);
+        }
+        else{
+          callback('Password incorrecto',null);
+        }
+      }
+    })
+
+  }
+}
+
 
 module.exports = tecnicoModel;
