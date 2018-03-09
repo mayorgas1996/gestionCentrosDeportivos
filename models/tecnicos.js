@@ -60,7 +60,6 @@ tecnicoModel.insertTecnico = (tecnicoData, callback) =>{
 
 tecnicoModel.updateTecnico = (tecnicoData, callback) => {
   if(connection){
-    console.log("Tecnico a actualizar")
     const sql = `UPDATE tecnico SET
       PASSWORD = ${connection.escape(tecnicoData.PASSWORD)},
       NOMBRE = ${connection.escape(tecnicoData.NOMBRE)},
@@ -85,7 +84,7 @@ tecnicoModel.updateTecnico = (tecnicoData, callback) => {
       }
       else{
         callback(null,{
-          'mensaje':'Datos actualizados correctamente'
+          mensaje:'Datos actualizados correctamente'
         })
       }
     })

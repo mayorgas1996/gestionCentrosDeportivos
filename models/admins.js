@@ -26,6 +26,22 @@ adminModel.getAdmins = (callback) =>{
   }
 };
 
+adminModel.getAdmin = (id_admin,callback) =>{
+  if(connection){
+
+    const sql = `SELECT * FROM administrador WHERE ID_ADMIN = ${connection.escape(id_admin)}`
+
+    connection.query(sql,id_admin,(err, row)=>{
+
+        if(err){
+          throw err;
+        }
+        else{
+          callback(null,row);
+        }
+    });
+  }
+};
 
 adminModel.insertAdmin = (adminData, callback) =>{
   if(connection){

@@ -36,7 +36,7 @@ console.log("Intentamos realizar query.");
 
 connection.query("SELECT * FROM administrador", function (err, result) {
   if (err) throw err;
-  
+
 });
 
 console.log("Intentamos finalizar la conexión con la base de datos");

@@ -8,6 +8,8 @@ var jwt = require('jsonwebtoken');
 var bcrypt = require('bcryptjs');
 var salt = bcrypt.genSaltSync(2);
 
+const cookieParser = require('cookie-parser');
+
 const Usuario = require('../models/usuarios');
 const Admin = require('../models/admins');
 const Director = require('../models/directores');
@@ -28,6 +30,7 @@ router.post('/login/admin',(req,res) => {
         datos: JSON.stringify(data),
         token: token
       })
+
     }
     else{
       res.status(500).json({
@@ -69,7 +72,8 @@ router.post('/login/director',(req,res) => {
 
   const directorData = {
     ID_DIRECTOR   : req.body.ID_DIRECTOR,
-    PASSWORD     : req.body.PASSWORD
+    PASSWORD      : req.body.PASSWORD,
+    ID_CENTRO     : Director.conocerCentro(req.body.ID_DIRECTOR)
   };
   Director.login(directorData, (err, data) =>{
     if(data){

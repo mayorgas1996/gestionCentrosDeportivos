@@ -1,12 +1,13 @@
 var express = require('express');
 var router = express.Router();
-const auth = require('./autenticacion');
 
 //Para encriptar la contraseña
 var bcrypt = require('bcryptjs');
 var salt = bcrypt.genSaltSync(2);
 //Para creación de token y comprobación -> Sesiones
 var jwt = require('jsonwebtoken');
+//Para decodificar el contenido del Payload del token donde metemos información del usuario que ha iniciado sesión
+var jwtDecode = require('jwt-decode');
 
 const Admin = require('../models/admins');
 
@@ -86,7 +87,7 @@ router.put('/admins/:id',ensureToken,(req,res) => {
   })
 })
 
-router.post('/admins/:id',ensureToken,(req,res) => {
+router.post('/admins/delete/:id',ensureToken,(req,res) => {
   jwt.verify(req.token,'administrador',(err,data) =>{
     if(err){
       res.sendStatus(403); //Acceso no permitido
@@ -103,6 +104,32 @@ router.post('/admins/:id',ensureToken,(req,res) => {
           })
         }
       })
+    }
+  })
+});
+
+router.post('/admins/mi_perfil',ensureToken,(req,res) => {
+  jwt.verify(req.token,'administrador',(err,data) =>{
+    if(err){
+      res.sendStatus(403); //Acceso no permitido
+    }
+    else{
+      var token = req.headers['authorization'];
+      token = token.replace('Bearer ', '');
+      var decoded = jwtDecode(token);
+      Admin.getAdmin(decoded.adminData.ID_ADMIN,(err,data) =>{
+        if(err != null){
+          res.status(500).json({
+            success: false,
+            mensaje: 'Error buscando admin.'
+          })
+        }
+        else{
+          res.status(200).json(data);
+        }
+
+      })
+
     }
   })
 });

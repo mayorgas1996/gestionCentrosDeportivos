@@ -50,6 +50,7 @@ directorModel.insertDirector = (directorData, callback) =>{
         throw err;
       }
       else{
+        console.log('Director registrado con ID ' + result.insertId)
         callback(null,{
           'insertId':result.insertId
         })
@@ -57,6 +58,33 @@ directorModel.insertDirector = (directorData, callback) =>{
     })
   }
 };
+
+directorModel.insertDirigido = (dirigidoData, callback) =>{
+  if(connection){
+    connection.query('INSERT INTO dirigido SET ?', dirigidoData, (err, result) =>{
+      if(err){
+        throw err;
+      }
+      else{
+        callback(null,true);
+      }
+    })
+  }
+};
+
+directorModel.insertTrabaja = (trabajaData, callback) =>{
+  if(connection){
+    connection.query('INSERT INTO trabaja SET ?', trabajaData, (err, result) =>{
+      if(err){
+        throw err;
+      }
+      else{
+        callback(null,true);
+      }
+    })
+  }
+};
+
 
 directorModel.updateDirector = (directorData, callback) => {
   if(connection){
@@ -105,6 +133,38 @@ directorModel.deleteDirector = (idDirector, callback) => {
 
 }
 
+directorModel.deleteDirigido = (idDirector, callback) => {
+  if(connection){
+    connection.query('DELETE FROM dirigido WHERE ID_DIRECTOR = ?',idDirector, (err,result) =>{
+      if (err){
+        throw err;
+      }
+      else{
+        callback(null,{
+          'mensaje':'Instancia borrada'
+        })
+      }
+    })
+  }
+
+}
+
+directorModel.deleteTrabaja = (idTecnico, callback) => {
+  if(connection){
+    connection.query('DELETE FROM trabaja WHERE ID_TECNICO = ?',idTecnico, (err,result) =>{
+      if (err){
+        throw err;
+      }
+      else{
+        callback(null,{
+          mensaje:'Instancia borrada'
+        })
+      }
+    })
+  }
+
+}
+
 directorModel.login = (directorData, callback) => {
   if(connection){
     const sql = `SELECT * FROM director WHERE
@@ -130,6 +190,23 @@ directorModel.login = (directorData, callback) => {
     })
 
   }
+}
+
+directorModel.conocerCentro = (idDirector, resultado) =>{
+  if(connection){
+    const sql = `SELECT ID_CENTRO FROM dirigido WHERE
+    ID_DIRECTOR =  ${connection.escape(idDirector)}`;
+
+    connection.query(sql,(err, row)=>{
+
+      if(err){
+        throw err;
+      }
+      else{
+        return row;
+      }
+    })
+}
 }
 
 module.exports = directorModel;
