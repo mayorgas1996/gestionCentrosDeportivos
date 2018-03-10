@@ -72,7 +72,8 @@ usuarioModel.updateUsuario = (usuarioData, callback) => {
     OBSERVACIONES = ${connection.escape(usuarioData.OBSERVACIONES)},
     DIRECCION = ${connection.escape(usuarioData.DIRECCION)},
     MUNICIPIO = ${connection.escape(usuarioData.MUNICIPIO)},
-    PROVINCIA = ${connection.escape(usuarioData.PROVINCIA)}
+    PROVINCIA = ${connection.escape(usuarioData.PROVINCIA)},
+    ACTIVO = ${connection.escape(usuarioData.ACTIVO)}
 
     WHERE ID_USUARIO = ${connection.escape(usuarioData.ID_USUARIO)}
     `;

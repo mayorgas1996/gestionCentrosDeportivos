@@ -96,28 +96,40 @@ router.post('/login/director',(req,res) => {
 })
 
 router.post('/login/tecnico',(req,res) => {
-
-  const tecnicoData = {
-    ID_TECNICO   : req.body.ID_TECNICO,
-    PASSWORD     : req.body.PASSWORD
-  };
-  Tecnico.login(tecnicoData, (err, data) =>{
+  Tecnico.conocerCentro(req.body.ID_TECNICO,(err,data) =>{
     if(data){
-      const token = jwt.sign({tecnicoData},'tecnico');
-      res.status(200).json({
-        success: true,
-        mensaje: 'Tecnico - Inicio de sesión correctamente',
-        datos: JSON.stringify(data),
-        token: token
+      const tecnicoData = {
+        ID_TECNICO   : req.body.ID_TECNICO,
+        PASSWORD     : req.body.PASSWORD,
+        ID_CENTRO    : data[0].ID_CENTRO
+      };
+      Tecnico.login(tecnicoData, (err, data) =>{
+        if(data){
+          const token = jwt.sign({tecnicoData},'tecnico');
+          res.status(200).json({
+            success: true,
+            mensaje: 'Tecnico - Inicio de sesión correctamente',
+            datos: JSON.stringify(data),
+            token: token
+          })
+        }
+        else{
+          res.status(500).json({
+            success: false,
+            mensaje: err
+          })
+        }
       })
     }
     else{
       res.status(500).json({
         success: false,
-        mensaje: err
+        mensaje: "El técnico no está trabajando en ningún centro deportivo."
       })
     }
-  })
+  });
+
+
 
 })
 

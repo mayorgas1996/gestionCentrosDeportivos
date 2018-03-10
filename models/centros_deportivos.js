@@ -33,7 +33,7 @@ centroDeportivoModel.getCentro = (id_centro,callback) =>{
           throw err;
         }
         else if(row.length == 0){
-          callback('Director no encontrado',null);
+          callback('Centro no encontrado',null);
         }
         else{
           callback(null,row);

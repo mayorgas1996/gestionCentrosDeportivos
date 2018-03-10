@@ -58,6 +58,19 @@ tecnicoModel.insertTecnico = (tecnicoData, callback) =>{
   }
 };
 
+tecnicoModel.insertRegistrado = (registradoData, callback) =>{
+  if(connection){
+    connection.query('INSERT INTO registrado SET ?', registradoData, (err, result) =>{
+      if(err){
+        throw err;
+      }
+      else{
+        callback(null,true);
+      }
+    })
+  }
+};
+
 tecnicoModel.updateTecnico = (tecnicoData, callback) => {
   if(connection){
     const sql = `UPDATE tecnico SET
@@ -135,5 +148,21 @@ tecnicoModel.login = (tecnicoData, callback) => {
   }
 }
 
+tecnicoModel.conocerCentro = (idTecnico, callback) =>{
+  if(connection){
+    const sql = `SELECT ID_CENTRO FROM trabaja WHERE
+    ID_TECNICO =  ${connection.escape(idTecnico)}`;
+
+    connection.query(sql,(err, row)=>{
+
+      if(err){
+        throw err;
+      }
+      else{
+        callback(null,row);
+      }
+    })
+}
+}
 
 module.exports = tecnicoModel;
