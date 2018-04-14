@@ -111,7 +111,7 @@ usuarioModel.deleteUsuario = (idUsuario, callback) => {
 usuarioModel.login = (usuarioData, callback) => {
   if(connection){
     const sql = `SELECT * FROM usuario WHERE
-    ID_USUARIO =  ${connection.escape(usuarioData.ID_USUARIO)}`;
+    EMAIL =  ${connection.escape(usuarioData.EMAIL)}`;
 
     connection.query(sql,(err, row)=>{
 
@@ -134,4 +134,25 @@ usuarioModel.login = (usuarioData, callback) => {
 
   }
 }
+
+usuarioModel.conocerID = (email, callback) =>{
+  if(connection){
+    const sql = `SELECT ID_USUARIO FROM usuario WHERE
+    EMAIL =  ${connection.escape(email)}`;
+
+    connection.query(sql,(err, row)=>{
+
+      if(err){
+        throw err;
+      }
+      else if(row.length == 0){
+        callback('No existe ese email',null);
+      }
+      else{
+        callback(null,row);
+      }
+    })
+  }
+}
+
 module.exports = usuarioModel;

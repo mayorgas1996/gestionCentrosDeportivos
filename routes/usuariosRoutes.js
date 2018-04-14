@@ -13,6 +13,7 @@ var jwtDecode = require('jwt-decode');
 const Tecnico = require('../models/tecnicos');
 const CentroDeportivo = require('../models/centros_deportivos');
 const Usuario = require('../models/usuarios');
+const Analisis = require('../models/analisis');
 
 /* GET users listing. */
 router.get('/usuarios',ensureToken, (req,res) => {
@@ -36,7 +37,6 @@ router.get('/usuarios/usuario/:id',ensureToken, (req,res) => {
     else{
       var id = req.params.id;
       Usuario.getUsuario(id,(err,data) =>{
-        console.log("Err contiene" + err)
         if(err != null){
           res.status(500).json({
             success: false,
@@ -51,6 +51,45 @@ router.get('/usuarios/usuario/:id',ensureToken, (req,res) => {
     }
   })
 });
+
+router.post('/usuarios/buscar',ensureToken,(req,res)=> {
+  jwt.verify(req.token,'tecnico',(err,data) => {
+    if(err){
+      res.sendStatus(403); //Acceso no permitido
+    }
+    else{
+      var token = req.headers['authorization'];
+      token = token.replace('Bearer ', '');
+      var decoded = jwtDecode(token);
+
+      const busquedaData = {
+        NOMBRE: req.body.nombre,
+      }
+
+
+      Tecnico.buscarUsuarioEnCentro(decoded.tecnicoData.ID_CENTRO, busquedaData,(err,data) =>{
+        if(data.length === 0){
+          res.status(200).json({
+            success: false
+          })
+        }
+        else if(data){
+          res.status(200).json({
+            success: true,
+            resultado: JSON.stringify(data)
+          })
+        }
+        else{
+          res.status(500).json({
+            success: false,
+            mensaje: 'Error buscando usuario'
+          })
+        }
+      })
+    }
+  })
+
+})
 
 //INSERTAR O REGISTRAR UN USUARIO, PARA ELLO TAMBIEN SE INSERTA EN LA TABLA 'REGISTRADO' JUNTO CON LA TABLA 'TECNICO'
 // HACEMOS COMPROBACIÓN DE QUE EL CENTRO DEPORTIVO AL QUE SE ASIGNA DICHO USUARIO EXISTE
@@ -167,6 +206,40 @@ router.put('/usuarios/:id',ensureToken,(req,res) => {
   })
 });
 
+router.post('/usuarios/plan/asignar',ensureToken,(req,res) => {
+  jwt.verify(req.token,'tecnico',(err,data) =>{
+    if(err){
+      res.sendStatus(403); //Acceso no permitido
+    }
+    else{
+      const inscritoData = {
+        ID_USUARIO   : req.body.id_usuario,
+        ID_PLAN      : req.body.id_plan,
+        FECHA_FIN    : req.body.fecha_fin
+      }
+
+      Tecnico.desasignarPlan(inscritoData.ID_USUARIO, (err,data) => {
+        if(data === true){
+          Tecnico.asignarPlan(inscritoData, (err,data) =>{
+            if(data === true){
+              res.status(200).json({
+                success:true,
+                mensaje: 'Plan asignado al usuario con exito.'
+              })
+            }
+            else{
+              res.status(500).json({
+                success: false,
+                mensaje: 'Error asignando plan al usuario.'
+              })
+            }
+          })
+        }
+      })
+    }
+  })
+});
+
 router.post('/usuarios/:id',ensureToken,(req,res) => {
   jwt.verify(req.token,'tecnico',(err,data) =>{
     if(err){
@@ -182,6 +255,133 @@ router.post('/usuarios/:id',ensureToken,(req,res) => {
             success: false,
             mensaje: 'Error deleting user'
           })
+        }
+      })
+    }
+  })
+});
+
+router.get('/usuarios/usuario/:id/recibo',ensureToken,(req,res) => {
+  jwt.verify(req.token,'tecnico',(err,data) =>{
+    if(err){
+      res.sendStatus(403); //Acceso no permitido
+    }
+    else{
+      Tecnico.getRecibo(req.params.id,(err,data) => {
+        if(err){
+          res.status(500).json({
+            success: false,
+            mensaje: 'Error obteniendo recibo.'
+          })
+        }
+        else{
+          res.status(200).json({
+            success: true,
+            mensaje: 'Recibo obtenido con exito.',
+            data
+          })
+
+        }
+
+      })
+    }
+  })
+});
+
+router.post('/usuarios/usuario/:id/analisis',ensureToken,(req,res) => {
+  jwt.verify(req.token,'tecnico',(err,data) =>{
+    if(err){
+      res.sendStatus(403); //Acceso no permitido
+    }
+    else{
+      const analisisData = {
+        ID_ANALISIS      : null,
+        PESO             : req.body.PESO,
+        GRASA_CORPORAL   : req.body.GRASA_CORPORAL,
+        PORCENTAJE_AGUA  : req.body.PORCENTAJE_AGUA,
+        MASA_OSEA        : req.body.MASA_OSEA,
+        MASA_VISCERAL    : req.body.MASA_VISCERAL,
+        MASA_MUSCULAR    : req.body.MASA_MUSCULAR,
+        EDAD_METABOLICA  : req.body.EDAD_METABOLICA,
+        IMC              : req.body.IMC,
+        FECHA            : req.body.FECHA
+      };
+      var token = req.headers['authorization'];
+      token = token.replace('Bearer ', '');
+      var decoded = jwtDecode(token);
+
+          Analisis.insertAnalisis(analisisData, (err, data) =>{
+            if(data && data.insertId){
+              const anotaData = {
+                ID_ANALISIS   : data.insertId,
+                ID_USUARIO : req.params.id
+              }
+              Tecnico.insertAnota(anotaData,(err,datos) => {
+
+                if(datos === true){
+                  res.status(200).json({
+                    success:true,
+                    mensaje: 'Analisis registrado con exito'
+                  })
+                }
+                else{
+                  res.status(500).json({
+                    success: false,
+                    mensaje: 'Error'
+                  });
+                }
+              });
+
+            }
+          });
+        }
+  });
+});
+
+router.get('/usuarios/usuario/:id/analisis',ensureToken, (req,res) => {
+  jwt.verify(req.token,'tecnico',(err,data) =>{
+    if(err){
+      res.sendStatus(403); //Acceso no permitido
+    }
+    else{
+      var id = req.params.id;
+      Analisis.getAnalisisDelUsuario(id,(err,data) =>{
+        if(err != null){
+          res.status(500).json({
+            success: false,
+            mensaje: 'Error buscando analisis.'
+          })
+        }
+        else if(data.length === 0){
+          res.status(200).json({
+            success: true,
+            mensaje: "No se han encontrado analisis."
+          });
+        }
+        else{
+          res.status(200).json(data);
+        }
+      })
+    }
+  })
+});
+
+router.get('/usuarios/usuario/:id/analisis/:id_analisis',ensureToken, (req,res) => {
+  jwt.verify(req.token,'tecnico',(err,data) =>{
+    if(err){
+      res.sendStatus(403); //Acceso no permitido
+    }
+    else{
+      var id = req.params.id_analisis;
+      Analisis.getAnalisis(id,(err,data) =>{
+        if(err != null){
+          res.status(500).json({
+            success: false,
+            mensaje: 'Error buscando analisis.'
+          })
+        }
+        else{
+          res.status(200).json(data);
         }
       })
     }

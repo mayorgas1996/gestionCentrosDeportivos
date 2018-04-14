@@ -61,19 +61,19 @@ router.post('/directores',ensureToken,(req,res) => {
     else{
       const directorData = {
         ID_DIRECTOR   : null,
-        PASSWORD : bcrypt.hashSync(req.body.password, salt),
-        NOMBRE : req.body.nombre,
-        EMAIL : req.body.email,
-        FECHA_NACIMIENTO : req.body.fecha_nac,
-        TELEFONO : req.body.telefono,
-        DOMICILIO : req.body.domicilio,
-        MUNICIPIO : req.body.municipio,
-        PROVINCIA : req.body.provincia,
-        DOCUMENTACION : req.body.documentacion,
-        SALARIO : req.body.salario
+        PASSWORD : bcrypt.hashSync(req.body.PASSWORD, salt),
+        NOMBRE : req.body.NOMBRE,
+        EMAIL : req.body.EMAIL,
+        FECHA_NACIMIENTO : req.body.FECHA_NACIMIENTO,
+        TELEFONO : req.body.TELEFONO,
+        DOMICILIO : req.body.DOMICILIO,
+        MUNICIPIO : req.body.MUNICIPIO,
+        PROVINCIA : req.body.PROVINCIA,
+        DOCUMENTACION : req.body.DOCUMENTACION,
+        SALARIO : req.body.SALARIO
       };
 
-      CentroDeportivo.getCentro(req.body.id_centro,(err,data) =>{
+      CentroDeportivo.getCentro(req.body.ID_CENTRO,(err,data) =>{
         if(err != null){
           res.status(500).json({
             success: false,
@@ -92,7 +92,7 @@ router.post('/directores',ensureToken,(req,res) => {
             if(data && data.insertId){
               const dirigidoData = {
                 ID_DIRECTOR   : data.insertId,
-                ID_CENTRO : req.body.id_centro
+                ID_CENTRO : req.body.ID_CENTRO
               }
               Director.insertDirigido(dirigidoData,(err,datos) => {
 
@@ -129,16 +129,16 @@ router.put('/directores/:id',ensureToken,(req,res) => {
     else{
       const directorData = {
         ID_DIRECTOR     : req.params.id,
-        PASSWORD       : bcrypt.hashSync(req.body.password, salt),
-        NOMBRE         : req.body.nombre,
-        EMAIL          : req.body.email,
-        FECHA_NACIMIENTO : req.body.fecha_nac,
-        TELEFONO       : req.body.telefono,
-        DOMICILIO      : req.body.domicilio,
-        MUNICIPIO      : req.body.municipio,
-        PROVINCIA      : req.body.provincia,
-        DOCUMENTACION  : req.body.documentacion,
-        SALARIO        : req.body.salario
+        PASSWORD       : bcrypt.hashSync(req.body.PASSWORD, salt),
+        NOMBRE         : req.body.NOMBRE,
+        EMAIL          : req.body.EMAIL,
+        FECHA_NACIMIENTO : req.body.FECHA_NACIMIENTO,
+        TELEFONO       : req.body.TELEFONO,
+        DOMICILIO      : req.body.DOMICILIO,
+        MUNICIPIO      : req.body.MUNICIPIO,
+        PROVINCIA      : req.body.PROVINCIA,
+        DOCUMENTACION  : req.body.DOCUMENTACION,
+        SALARIO        : req.body.SALARIO
 
       };
 
@@ -148,7 +148,7 @@ router.put('/directores/:id',ensureToken,(req,res) => {
             if(datos && datos.mensaje){
               const dirigidoData = {
                 ID_DIRECTOR   : req.params.id,
-                ID_CENTRO : req.body.id_centro
+                ID_CENTRO : req.body.ID_CENTRO
               }
               Director.insertDirigido(dirigidoData,(err,datosDirigido) =>{
                 if(datosDirigido === true){
@@ -181,8 +181,40 @@ router.put('/directores/:id',ensureToken,(req,res) => {
   })
 })
 
+router.put('/directores/mi_perfil/:id',ensureToken,(req,res) => {
+  jwt.verify(req.token,'director',(err,data) =>{
+    if(err){
+      res.sendStatus(403); //Acceso no permitido
+    }
+    else{
+      const directorData = {
+        ID_DIRECTOR: req.params.id,
+        PASSWORD: bcrypt.hashSync(req.body.password, salt),
+        NOMBRE  : req.body.nombre,
+        EMAIL   : req.body.email,
+        TELEFONO: req.body.telefono,
+        DOMICILIO: req.body.domicilio,
+        MUNICIPIO: req.body.municipio,
+        PROVINCIA: req.body.provincia
+      };
+      Director.updateMyDirector(directorData,(err,data) => {
+        if(data && data.mensaje){
+          res.status(200).json(data);
+        }
+        else{
+          res.status(500).json({
+            success: false,
+            mensaje: 'Error'
+          })
+        }
+
+      })
+    }
+  })
+})
+
 //Borramos director y también su relación en la tabla Dirigido
-router.post('/directores/:id',ensureToken,(req,res) => {
+router.post('/directores/delete/:id',ensureToken,(req,res) => {
   jwt.verify(req.token,'administrador',(err,data) =>{
     if(err){
       res.sendStatus(403); //Acceso no permitido

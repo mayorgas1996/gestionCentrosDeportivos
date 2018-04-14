@@ -13,6 +13,12 @@ var directores = require('./routes/directoresRoutes');
 var centros_deportivos = require('./routes/centros_deportivosRoutes');
 var pistas_deportivas = require('./routes/pistas_deportivasRoutes');
 var planes = require('./routes/planesRoutes');
+var actividades = require('./routes/actividadesRoutes');
+var salas = require('./routes/salasRoutes');
+var contabilidad = require('./routes/contabilidadRoutes');
+var ejercicios = require('./routes/ejerciciosRoutes');
+var rutinas = require('./routes/rutinasRoutes');
+
 var login = require('./routes/autenticacion');
 
 var engines = require('consolidate');
@@ -69,7 +75,22 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(__dirname + '/views'));
+app.use('/js',express.static(path.join(__dirname, 'public/javascripts')));
+app.use('/controllers',express.static(path.join(__dirname, 'public/javascripts/controllers')));
+app.use('/services',express.static(path.join(__dirname, 'public/javascripts/services')));
+app.use('/directives',express.static(path.join(__dirname, 'public/javascripts/directives')));
+
+//Solucion al CORS y "Access-Control-Allow-Origin"
+app.use(function(req, res, next){
+  res.setHeader('Access-Control-Allow-Origin', "*");
+  res.setHeader('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
+  res.setHeader('Access-Control-Allow-Origin', 'Content-Type');
+  res.setHeader('Access-Control-Allow-Headers', 'Authorization'); //Para que nos permita pasar el Bearer Token por la cabecera
+  res.setHeader('Access-Control-Allow-Credentials', true);
+
+  next();
+})
 
 app.use('/', index);
 app.use('/', admins);
@@ -79,6 +100,12 @@ app.use('/',directores);
 app.use('/',centros_deportivos);
 app.use('/',pistas_deportivas);
 app.use('/',planes);
+app.use('/',actividades);
+app.use('/',salas);
+app.use('/',contabilidad);
+app.use('/',ejercicios);
+app.use('/',rutinas);
+
 app.use('/',login);
 
 // catch 404 and forward to error handler

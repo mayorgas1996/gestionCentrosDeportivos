@@ -1,0 +1,73 @@
+
+<html ng-app="myApp">
+<head>
+  <title>TFG</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
+  <!-- Include the AngularJS routing library -->
+    <script src="https://code.angularjs.org/1.2.28/angular-route.min.js"></script>
+
+</head>
+  <body ng-controller="hello">
+    <h1>Gestion Centros Deportivos </h1>
+    <div class="container">
+	<div class="col-md-4 col-md-offset-4">
+		<section>
+			<div class="panel panel-default top caja">
+			  <div class="panel-body">
+			    <h3 class="text-center">Bienvenido</h3>
+
+			    <form>
+			    	<div class="input-group input-group-lg">
+					  <span class="input-group-addon" id="sizing-addon1"><i class="fa fa-user" aria-hidden="true"></i></span>
+					  <input name="email" type="email" id="email" class="form-control" placeholder="Email" aria-describedby="sizing-addon1" ng-model="formData.EMAIL" required>
+					</div>
+					<br>
+					<div class="input-group input-group-lg">
+					  <span class="input-group-addon" id="sizing-addon1"><i class="fa fa-key" aria-hidden="true"></i></span>
+					  <input type="password" name="password" id="password" class="form-control" placeholder="Password" aria-describedby="sizing-addon1" ng-model="formData.PASSWORD" required>
+					</div>
+					<br>
+          <div class="form-group">
+          <select class="form-control" id="sel1" ng-model="formData.ROL">
+            <option selected>Administrador</option>
+            <option>Director</option>
+            <option>Técnico</option>
+          </select>
+        </div>
+        <p>{{caca}}</p>
+        <p>Resultado {{caca}}</p>
+
+
+					 <button type="submit" class="btn btn-primary btn-block" ng-click="loginButton()">Ingresar</button>
+
+			    </form>
+			  </div>
+			</div>
+		</section>
+	</div>
+
+</div>
+
+<div ng-include="'./footer.html'"></div>
+
+<!-- Modules -->
+<script>
+var app = angular.module('myApp', []);
+
+app.controller('hello', ['$scope', function($scope) {
+  $scope.caca = 'Hola!';
+}]);
+
+</script>
+
+<!-- Controllers-->
+<script src="js/controllers/LoginController.js"></script>
+
+
+  </body>
+</html>

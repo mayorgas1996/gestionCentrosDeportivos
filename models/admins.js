@@ -26,6 +26,7 @@ adminModel.getAdmins = (callback) =>{
   }
 };
 
+
 adminModel.getAdmin = (id_admin,callback) =>{
   if(connection){
 
@@ -60,10 +61,44 @@ adminModel.insertAdmin = (adminData, callback) =>{
 
 adminModel.updateAdmin = (adminData, callback) => {
   if(connection){
+    console.log('Se quiere actualizar admin con: ' + JSON.stringify(adminData));
+    const sql = `UPDATE administrador SET
+      NOMBRE = ${connection.escape(adminData.NOMBRE)},
+      EMAIL = ${connection.escape(adminData.EMAIL)},
+      TELEFONO = ${connection.escape(adminData.TELEFONO)},
+      DOMICILIO = ${connection.escape(adminData.DOMICILIO)},
+      MUNICIPIO = ${connection.escape(adminData.MUNICIPIO)},
+      PROVINCIA = ${connection.escape(adminData.PROVINCIA )}
+
+      WHERE ID_ADMIN = ${connection.escape(adminData.ID_ADMIN)}
+    `;
+
+    connection.query(sql, (err,result) =>{
+      if (err){
+        throw err;
+      }
+      else{
+        callback(null,{
+          'mensaje':'Datos actualizados correctamente'
+        })
+      }
+    })
+  }
+
+}
+
+adminModel.updateMyAdmin = (adminData, callback) => {
+  if(connection){
+    console.log('Se quiere actualizar admin con: ' + JSON.stringify(adminData));
     const sql = `UPDATE administrador SET
       PASSWORD = ${connection.escape(adminData.PASSWORD)},
       NOMBRE = ${connection.escape(adminData.NOMBRE)},
-      EMAIL = ${connection.escape(adminData.EMAIL)}
+      EMAIL = ${connection.escape(adminData.EMAIL)},
+      TELEFONO = ${connection.escape(adminData.TELEFONO)},
+      DOMICILIO = ${connection.escape(adminData.DOMICILIO)},
+      MUNICIPIO = ${connection.escape(adminData.MUNICIPIO)},
+      PROVINCIA = ${connection.escape(adminData.PROVINCIA )}
+
       WHERE ID_ADMIN = ${connection.escape(adminData.ID_ADMIN)}
     `;
 
@@ -100,7 +135,7 @@ adminModel.deleteAdmin = (idAdmin, callback) => {
 adminModel.login = (adminData, callback) => {
   if(connection){
     const sql = `SELECT * FROM administrador WHERE
-    ID_ADMIN =  ${connection.escape(adminData.ID_ADMIN)}`;
+    EMAIL =  ${connection.escape(adminData.EMAIL)}`;
 
     connection.query(sql,(err, row)=>{
 
@@ -123,5 +158,26 @@ adminModel.login = (adminData, callback) => {
 
   }
 }
+
+adminModel.conocerID = (email, callback) =>{
+  if(connection){
+    const sql = `SELECT ID_ADMIN FROM administrador WHERE
+    EMAIL =  ${connection.escape(email)}`;
+    console.log("Viendo si existe el email " + email);
+    connection.query(sql,(err, row)=>{
+
+      if(err){
+        throw err;
+      }
+      else if(row.length == 0){
+        callback('No existe ese email',null);
+      }
+      else{
+        callback(null,row);
+      }
+    })
+  }
+}
+
 
 module.exports = adminModel;

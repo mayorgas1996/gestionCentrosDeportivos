@@ -10,9 +10,9 @@ var connection = mysql.createConnection({
 
 let planModel = {};
 
-planModel.getPlanes = (callback) =>{
+planModel.getPlanesDelCentro = (id_centro, callback) =>{
   if(connection){
-    connection.query('SELECT * FROM plan',(err, rows)=>{
+    connection.query('SELECT * FROM plan JOIN oferta on plan.ID_PLAN = oferta.ID_PLAN WHERE ID_CENTRO = ?',id_centro,(err, rows)=>{
         if(err){
           throw err;
         }

@@ -29,7 +29,7 @@ directorModel.getDirectores = (callback) =>{
 directorModel.getDirector = (id_director,callback) =>{
   if(connection){
 
-    const sql = `SELECT * FROM director WHERE ID_DIRECTOR = ${connection.escape(id_director)}`
+    const sql = `SELECT * FROM director JOIN dirigido ON director.ID_DIRECTOR = dirigido.ID_DIRECTOR WHERE director.ID_DIRECTOR = ${connection.escape(id_director)}`
 
     connection.query(sql,id_director,(err, row)=>{
 
@@ -85,6 +85,58 @@ directorModel.insertTrabaja = (trabajaData, callback) =>{
   }
 };
 
+directorModel.insertOferta = (ofertaData, callback) =>{
+  if(connection){
+    connection.query('INSERT INTO oferta SET ?', ofertaData, (err, result) =>{
+      if(err){
+        throw err;
+      }
+      else{
+        callback(null,true);
+      }
+    })
+  }
+};
+
+directorModel.insertHay = (hayData, callback) =>{
+  if(connection){
+    connection.query('INSERT INTO hay SET ?', hayData, (err, result) =>{
+      if(err){
+        throw err;
+      }
+      else{
+        callback(null,true);
+      }
+    })
+  }
+};
+
+
+directorModel.insertExisten = (existenData, callback) =>{
+  if(connection){
+    connection.query('INSERT INTO existen SET ?', existenData, (err, result) =>{
+      if(err){
+        throw err;
+      }
+      else{
+        callback(null,true);
+      }
+    })
+  }
+};
+
+directorModel.insertPropone = (proponeData, callback) =>{
+  if(connection){
+    connection.query('INSERT INTO propone SET ?', proponeData, (err, result) =>{
+      if(err){
+        throw err;
+      }
+      else{
+        callback(null,true);
+      }
+    })
+  }
+};
 
 directorModel.updateDirector = (directorData, callback) => {
   if(connection){
@@ -92,13 +144,41 @@ directorModel.updateDirector = (directorData, callback) => {
       PASSWORD = ${connection.escape(directorData.PASSWORD)},
       NOMBRE = ${connection.escape(directorData.NOMBRE)},
       EMAIL = ${connection.escape(directorData.EMAIL)},
-      FECHA_NACIMIENTO = ${connection.escape(directorData.FECHA_NAC)},
+      FECHA_NACIMIENTO = ${connection.escape(directorData.FECHA_NACIMIENTO)},
       TELEFONO = ${connection.escape(directorData.TELEFONO)},
       DOMICILIO = ${connection.escape(directorData.DOMICILIO)},
       MUNICIPIO = ${connection.escape(directorData.MUNICIPIO)},
       PROVINCIA = ${connection.escape(directorData.PROVINCIA)},
       DOCUMENTACION = ${connection.escape(directorData.DOCUMENTACION)},
       SALARIO = ${connection.escape(directorData.SALARIO)}
+
+      WHERE ID_DIRECTOR = ${connection.escape(directorData.ID_DIRECTOR)}
+    `;
+
+    connection.query(sql, (err,result) =>{
+      if (err){
+        throw err;
+      }
+      else{
+        callback(null,{
+          'mensaje':'Datos actualizados correctamente'
+        })
+      }
+    })
+  }
+
+}
+
+directorModel.updateMyDirector = (directorData, callback) => {
+  if(connection){
+    const sql = `UPDATE director SET
+      PASSWORD = ${connection.escape(directorData.PASSWORD)},
+      NOMBRE = ${connection.escape(directorData.NOMBRE)},
+      EMAIL = ${connection.escape(directorData.EMAIL)},
+      TELEFONO = ${connection.escape(directorData.TELEFONO)},
+      DOMICILIO = ${connection.escape(directorData.DOMICILIO)},
+      MUNICIPIO = ${connection.escape(directorData.MUNICIPIO)},
+      PROVINCIA = ${connection.escape(directorData.PROVINCIA )}
 
       WHERE ID_DIRECTOR = ${connection.escape(directorData.ID_DIRECTOR)}
     `;
@@ -168,7 +248,7 @@ directorModel.deleteTrabaja = (idTecnico, callback) => {
 directorModel.login = (directorData, callback) => {
   if(connection){
     const sql = `SELECT * FROM director WHERE
-    ID_DIRECTOR =  ${connection.escape(directorData.ID_DIRECTOR)}`;
+    EMAIL =  ${connection.escape(directorData.EMAIL)}`;
 
     connection.query(sql,(err, row)=>{
 
@@ -192,7 +272,7 @@ directorModel.login = (directorData, callback) => {
   }
 }
 
-directorModel.conocerCentro = (idDirector, resultado) =>{
+directorModel.conocerCentro = (idDirector, callback) =>{
   if(connection){
     const sql = `SELECT ID_CENTRO FROM dirigido WHERE
     ID_DIRECTOR =  ${connection.escape(idDirector)}`;
@@ -202,11 +282,34 @@ directorModel.conocerCentro = (idDirector, resultado) =>{
       if(err){
         throw err;
       }
+      else if(row.length == 0){
+        callback('Director no trabaja en ningun centro',null);
+      }
       else{
-        return row;
+        callback(null,row);
       }
     })
+  }
 }
+
+directorModel.conocerID = (email, callback) =>{
+  if(connection){
+    const sql = `SELECT ID_DIRECTOR FROM director WHERE
+    EMAIL =  ${connection.escape(email)}`;
+
+    connection.query(sql,(err, row)=>{
+
+      if(err){
+        throw err;
+      }
+      else if(row.length == 0){
+        callback('No existe ese email',null);
+      }
+      else{
+        callback(null,row);
+      }
+    })
+  }
 }
 
 module.exports = directorModel;

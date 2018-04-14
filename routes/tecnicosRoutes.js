@@ -184,6 +184,38 @@ router.put('/tecnicos/:id',ensureToken,(req,res) => {
   })
 })
 
+router.put('/tecnicos/mi_perfil/:id',ensureToken,(req,res) => {
+  jwt.verify(req.token,'tecnico',(err,data) =>{
+    if(err){
+      res.sendStatus(403); //Acceso no permitido
+    }
+    else{
+      const tecnicoData = {
+        ID_TECNICO: req.params.id,
+        PASSWORD: bcrypt.hashSync(req.body.password, salt),
+        NOMBRE  : req.body.nombre,
+        EMAIL   : req.body.email,
+        TELEFONO: req.body.telefono,
+        DOMICILIO: req.body.domicilio,
+        MUNICIPIO: req.body.municipio,
+        PROVINCIA: req.body.provincia
+      };
+      Tecnico.updateMyTecnico(tecnicoData,(err,data) => {
+        if(data && data.mensaje){
+          res.status(200).json(data);
+        }
+        else{
+          res.status(500).json({
+            success: false,
+            mensaje: 'Error'
+          })
+        }
+
+      })
+    }
+  })
+})
+
 router.post('/tecnicos/delete/:id',ensureToken,(req,res) => {
   jwt.verify(req.token,'director',(err,data) =>{
     if(err){

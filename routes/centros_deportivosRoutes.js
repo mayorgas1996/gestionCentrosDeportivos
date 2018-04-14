@@ -58,12 +58,12 @@ router.post('/centros',(req,res) => {
 router.put('/centros/:id',(req,res) => {
   const centroData = {
     ID_CENTRO     : req.params.id,
-    NOMBRE : req.body.nombre,
-    DIRECCION : req.body.direccion,
-    MUNICIPIO : req.body.municipio,
-    PROVINCIA : req.body.provincia,
-    TELEFONO : req.body.telefono,
-    EMAIL : req.body.email
+    NOMBRE : req.body.NOMBRE,
+    DIRECCION : req.body.DIRECCION,
+    MUNICIPIO : req.body.MUNICIPIO,
+    PROVINCIA : req.body.PROVINCIA,
+    TELEFONO : req.body.TELEFONO,
+    EMAIL : req.body.EMAIL  
 
   };
 
