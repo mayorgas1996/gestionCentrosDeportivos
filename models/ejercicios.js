@@ -61,7 +61,8 @@ ejercicioModel.updateEjercicio = (ejercicioData, callback) => {
     const sql = `UPDATE ejercicio SET
       NOMBRE = ${connection.escape(ejercicioData.NOMBRE)},
       GRUPO_MUSCULAR = ${connection.escape(ejercicioData.GRUPO_MUSCULAR)},
-      DIFICULTAD = ${connection.escape(ejercicioData.DIFICULTAD)}
+      DIFICULTAD = ${connection.escape(ejercicioData.DIFICULTAD)},
+      INFORMACION = ${connection.escape(ejercicioData.INFORMACION)}
 
       WHERE ID_EJERCICIO = ${connection.escape(ejercicioData.ID_EJERCICIO)}
     `;
@@ -104,7 +105,7 @@ ejercicioModel.buscarEjercicioEnCentro = (id_centro, busquedaData,callback) =>{
       nombre = nombre.replace("\'","%"); //Reemplazamos al inicio
       nombre = nombre.replace("\'","%"); //Reemplazamos al final el simbolo de la comilla que hay que insertar al pasar el JSON
 
-      const sql = `SELECT ejercicio.NOMBRE, ejercicio.GRUPO_MUSCULAR, ejercicio.DIFICULTAD FROM tiene join ejercicio on tiene.ID_EJERCICIO = ejercicio.ID_EJERCICIO WHERE ID_CENTRO = ${connection.escape(id_centro)} and ejercicio.NOMBRE LIKE '${nombre}'`;
+      const sql = `SELECT ejercicio.NOMBRE, ejercicio.GRUPO_MUSCULAR, ejercicio.DIFICULTAD, ejercicio.INFORMACION FROM tiene join ejercicio on tiene.ID_EJERCICIO = ejercicio.ID_EJERCICIO WHERE ID_CENTRO = ${connection.escape(id_centro)} and ejercicio.NOMBRE LIKE '${nombre}'`;
 
       connection.query(sql,(err,rows)=>{
         if(err){

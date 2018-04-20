@@ -16,12 +16,15 @@ const Director = require('../models/directores');
 
 /* GET users listing. */
 router.get('/tecnicos', ensureToken,(req,res) => {
+  var token = req.headers['authorization'];
+  token = token.replace('Bearer ', '');
+  var decoded = jwtDecode(token);
   jwt.verify(req.token,'director',(err,data) =>{
     if(err){
       res.sendStatus(403); //Acceso no permitido
     }
     else{
-      Tecnico.getTecnicos((err,data) =>{
+      Tecnico.getTecnicosDelCentro(decoded.directorData.ID_CENTRO,(err,data) =>{
         res.status(200).json(data);
       })
     }
@@ -54,6 +57,9 @@ router.get('/tecnicos/:id',ensureToken, (req,res) => {
 //INSERTAR O REGISTRAR UN TECNICO, PARA ELLO TAMBIEN SE INSERTA EN LA TABLA 'TRABAJA' JUNTO CON LA TABLA 'TECNICO'
 // HACEMOS COMPROBACIÓN DE QUE EL CENTRO DEPORTIVO AL QUE SE ASIGNA DICHO TECNICO EXISTE
 router.post('/tecnicos',ensureToken,(req,res) => {
+  var token = req.headers['authorization'];
+  token = token.replace('Bearer ', '');
+  var decoded = jwtDecode(token);
   jwt.verify(req.token,'director',(err,data) =>{
     if(err){
       res.sendStatus(403); //Acceso no permitido
@@ -61,27 +67,29 @@ router.post('/tecnicos',ensureToken,(req,res) => {
     else{
       const tecnicoData = {
         ID_TECNICO   : null,
-        PASSWORD : bcrypt.hashSync(req.body.password, salt),
-        NOMBRE : req.body.nombre,
-        EMAIL : req.body.email,
-        FECHA_NACIMIENTO : req.body.fecha_nac,
-        TELEFONO : req.body.telefono,
-        DOMICILIO : req.body.domicilio,
-        MUNICIPIO : req.body.municipio,
-        PROVINCIA : req.body.provincia,
-        DOCUMENTACION : req.body.documentacion,
-        SALARIO : req.body.salario,
-        ADMINISTRATIVO : req.body.administrativo,
-        DEPORTIVO : req.body.deportivo,
-        ESPECIALIDAD : req.body.especialidad
+        PASSWORD : bcrypt.hashSync(req.body.PASSWORD, salt),
+        NOMBRE : req.body.NOMBRE,
+        EMAIL : req.body.EMAIL,
+        FECHA_NACIMIENTO : req.body.FECHA_NACIMIENTO,
+        TELEFONO : req.body.TELEFONO,
+        DOMICILIO : req.body.DOMICILIO,
+        MUNICIPIO : req.body.MUNICIPIO,
+        PROVINCIA : req.body.PROVINCIA,
+        DOCUMENTACION : req.body.DOCUMENTACION,
+        SALARIO : req.body.SALARIO,
+        ADMINISTRATIVO : req.body.ADMINISTRATIVO,
+        DEPORTIVO : req.body.DEPORTIVO,
+        ESPECIALIDAD : req.body.ESPECIALIDAD
 
       };
-
-      CentroDeportivo.getCentro(req.body.id_centro,(err,data) =>{
+      if(tecnicoData.SALARIO == ''){
+        tecnicoData.SALARIO = 0;
+      }
+      CentroDeportivo.getCentro(decoded.directorData.ID_CENTRO,(err,data) =>{
         if(err != null){
           res.status(500).json({
             success: false,
-            mensaje: 'Error buscando centro ' + req.params.id
+            mensaje: 'Error buscando centro '
           })
         }
         else if(data === null){
@@ -95,7 +103,7 @@ router.post('/tecnicos',ensureToken,(req,res) => {
             if(data && data.insertId){
               const trabajaData = {
                 ID_TECNICO   : data.insertId,
-                ID_CENTRO : req.body.id_centro
+                ID_CENTRO : decoded.directorData.ID_CENTRO
               }
               Director.insertTrabaja(trabajaData,(err,datos) => {
 
@@ -122,6 +130,9 @@ router.post('/tecnicos',ensureToken,(req,res) => {
 })
 
 router.put('/tecnicos/:id',ensureToken,(req,res) => {
+  var token = req.headers['authorization'];
+  token = token.replace('Bearer ', '');
+  var decoded = jwtDecode(token);
   jwt.verify(req.token,'director',(err,data) =>{
     if(err){
       res.sendStatus(403); //Acceso no permitido
@@ -129,29 +140,32 @@ router.put('/tecnicos/:id',ensureToken,(req,res) => {
     else{
       const tecnicoData = {
         ID_TECNICO     : req.params.id,
-        PASSWORD       : bcrypt.hashSync(req.body.password, salt),
-        NOMBRE         : req.body.nombre,
-        EMAIL          : req.body.email,
-        FECHA_NACIMIENTO : req.body.fecha_nac,
-        TELEFONO       : req.body.telefono,
-        DOMICILIO      : req.body.domicilio,
-        MUNICIPIO      : req.body.municipio,
-        PROVINCIA      : req.body.provincia,
-        DOCUMENTACION  : req.body.documentacion,
-        SALARIO        : req.body.salario,
-        ADMINISTRATIVO : req.body.administrativo,
-        DEPORTIVO      : req.body.deportivo,
-        ESPECIALIDAD   : req.body.especialidad
+        PASSWORD       : bcrypt.hashSync(req.body.PASSWORD, salt),
+        NOMBRE         : req.body.NOMBRE,
+        EMAIL          : req.body.EMAIL,
+        FECHA_NACIMIENTO : req.body.FECHA_NACIMIENTO,
+        TELEFONO       : req.body.TELEFONO,
+        DOMICILIO      : req.body.DOMICILIO,
+        MUNICIPIO      : req.body.MUNICIPIO,
+        PROVINCIA      : req.body.PROVINCIA,
+        DOCUMENTACION  : req.body.DOCUMENTACION,
+        SALARIO        : req.body.SALARIO,
+        ADMINISTRATIVO : req.body.ADMINISTRATIVO,
+        DEPORTIVO      : req.body.DEPORTIVO,
+        ESPECIALIDAD   : req.body.ESPECIALIDAD
 
       };
 
+      if(tecnicoData.SALARIO == ''){
+        tecnicoData.SALARIO = 0;
+      }
       Tecnico.updateTecnico(tecnicoData,(err,data) => {
         if(data && data.mensaje){
           Director.deleteTrabaja(tecnicoData.ID_TECNICO,(err,datos)=>{
             if(datos && datos.mensaje){
               const trabajaData = {
                 ID_TECNICO : req.params.id,
-                ID_CENTRO  : req.body.id_centro
+                ID_CENTRO  : decoded.directorData.ID_CENTRO
               }
               Director.insertTrabaja(trabajaData,(err,datosTrabaja) =>{
                 if(datosTrabaja === true){
@@ -192,13 +206,13 @@ router.put('/tecnicos/mi_perfil/:id',ensureToken,(req,res) => {
     else{
       const tecnicoData = {
         ID_TECNICO: req.params.id,
-        PASSWORD: bcrypt.hashSync(req.body.password, salt),
-        NOMBRE  : req.body.nombre,
-        EMAIL   : req.body.email,
-        TELEFONO: req.body.telefono,
-        DOMICILIO: req.body.domicilio,
-        MUNICIPIO: req.body.municipio,
-        PROVINCIA: req.body.provincia
+        PASSWORD: bcrypt.hashSync(req.body.PASSWORD, salt),
+        NOMBRE  : req.body.NOMBRE,
+        EMAIL   : req.body.EMAIL,
+        TELEFONO: req.body.TELEFONO,
+        DOMICILIO: req.body.DOMICILIO,
+        MUNICIPIO: req.body.MUNICIPIO,
+        PROVINCIA: req.body.PROVINCIA
       };
       Tecnico.updateMyTecnico(tecnicoData,(err,data) => {
         if(data && data.mensaje){

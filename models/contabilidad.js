@@ -11,7 +11,7 @@ let contabilidadModel = {};
 
 contabilidadModel.getContabilidadDelCentro = (id_centro,callback) =>{
   if(connection){
-    const sql = `SELECT * FROM refleja JOIN operacion ON refleja.ID_OPERACION = operacion.ID_OPERACION WHERE refleja.ID_CENTRO = ${connection.escape(id_centro)}`
+    const sql = `SELECT * FROM refleja JOIN operacion ON refleja.ID_OPERACION = operacion.ID_OPERACION WHERE refleja.ID_CENTRO = ${connection.escape(id_centro)} ORDER BY FECHA DESC`
 
     connection.query(sql,id_centro,(err, rows)=>{
         if(err){
@@ -64,7 +64,7 @@ contabilidadModel.updateOperacion = (operacionData, callback) => {
       CANTIDAD = ${connection.escape(operacionData.CANTIDAD)},
       FECHA = ${connection.escape(operacionData.FECHA)}
 
-      WHERE ID_OPERACION = ${connection.escape(operacionData.ID_SALA)}
+      WHERE ID_OPERACION = ${connection.escape(operacionData.ID_OPERACION)}
     `;
 
     connection.query(sql, (err,result) =>{

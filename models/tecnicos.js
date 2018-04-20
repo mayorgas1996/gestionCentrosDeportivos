@@ -13,9 +13,9 @@ var connection = mysql.createConnection({
 
 let tecnicoModel = {};
 
-tecnicoModel.getTecnicos = (callback) =>{
+tecnicoModel.getTecnicosDelCentro = (id_centro, callback) =>{
   if(connection){
-    connection.query('SELECT * FROM tecnico',(err, rows)=>{
+    connection.query('SELECT * FROM tecnico JOIN trabaja ON tecnico.ID_TECNICO = trabaja.ID_TECNICO WHERE trabaja.ID_CENTRO = ?',id_centro,(err, rows)=>{
         if(err){
           throw err;
         }

@@ -78,8 +78,6 @@ router.post('/planes',ensureToken,(req,res) => {
         EDAD_MIN : req.body.EDAD_MIN,
         EDAD_MAX : req.body.EDAD_MAX,
         ACCESO_ZONA_ACUATICA : req.body.ACCESO_ZONA_ACUATICA,
-        ACCESO_ACTIVIDADES : req.body.ACCESO_ACTIVIDADES,
-        ACCESO_FITNESS : req.body.ACCESO_FITNESS,
         SABADOS_Y_DOMINGOS : req.body.SABADOS_Y_DOMINGOS
       };
       var token = req.headers['authorization'];
@@ -128,8 +126,6 @@ router.put('/planes/:id',ensureToken,(req,res) => {
         EDAD_MIN : req.body.EDAD_MIN,
         EDAD_MAX : req.body.EDAD_MAX,
         ACCESO_ZONA_ACUATICA : req.body.ACCESO_ZONA_ACUATICA,
-        ACCESO_ACTIVIDADES : req.body.ACCESO_ACTIVIDADES,
-        ACCESO_FITNESS : req.body.ACCESO_FITNESS,
         SABADOS_Y_DOMINGOS : req.body.SABADOS_Y_DOMINGOS
 
       };

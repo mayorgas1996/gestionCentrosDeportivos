@@ -16,13 +16,16 @@ const Usuario = require('../models/usuarios');
 const Analisis = require('../models/analisis');
 
 /* GET users listing. */
-router.get('/usuarios',ensureToken, (req,res) => {
+router.get('/usuarios_activos',ensureToken, (req,res) => {
+  var token = req.headers['authorization'];
+  token = token.replace('Bearer ', '');
+  var decoded = jwtDecode(token);
   jwt.verify(req.token,'tecnico',(err,data) =>{
     if(err){
       res.sendStatus(403); //Acceso no permitido
     }
     else{
-      Usuario.getUsuarios((err,data) =>{
+      Usuario.getUsuariosActivosDelCentro(decoded.tecnicoData.ID_CENTRO,(err,data) =>{
         res.status(200).json(data);
       })
     }
@@ -30,13 +33,20 @@ router.get('/usuarios',ensureToken, (req,res) => {
 });
 
 router.get('/usuarios/usuario/:id',ensureToken, (req,res) => {
+  var token = req.headers['authorization'];
+  token = token.replace('Bearer ', '');
+  var decoded = jwtDecode(token);
   jwt.verify(req.token,'tecnico',(err,data) =>{
     if(err){
       res.sendStatus(403); //Acceso no permitido
     }
     else{
-      var id = req.params.id;
-      Usuario.getUsuario(id,(err,data) =>{
+//      var id = req.params.id;
+      const usuarioData = {
+        ID_USUARIO: req.params.id,
+        ID_CENTRO : decoded.tecnicoData.ID_CENTRO
+      }
+      Usuario.getUsuario(usuarioData,(err,data) =>{
         if(err != null){
           res.status(500).json({
             success: false,
@@ -101,19 +111,19 @@ router.post('/usuarios',ensureToken,(req,res) => {
     else{
       const usuarioData = {
         ID_USUARIO   : null,
-        PASSWORD     : bcrypt.hashSync(req.body.password, salt),
-        NOMBRE       : req.body.nombre,
-        EMAIL        : req.body.email,
-        SEXO         : req.body.sexo,
-        FECHA_NAC    : req.body.fecha_nac,
-        TELEFONO     : req.body.telefono,
-        DOCUMENTACION: req.body.documentacion,
-        IBAN         : req.body.iban,
-        OBSERVACIONES: req.body.observaciones,
-        DIRECCION    : req.body.direccion,
-        MUNICIPIO    : req.body.municipio,
-        PROVINCIA    : req.body.provincia,
-        ACTIVO       : req.body.activo
+        PASSWORD     : bcrypt.hashSync(req.body.PASSWORD, salt),
+        NOMBRE       : req.body.NOMBRE,
+        EMAIL        : req.body.EMAIL,
+        SEXO         : req.body.SEXO,
+        FECHA_NAC    : req.body.FECHA_NAC,
+        TELEFONO     : req.body.TELEFONO,
+        DOCUMENTACION: req.body.DOCUMENTACION,
+        IBAN         : req.body.IBAN,
+        OBSERVACIONES: req.body.OBSERVACIONES,
+        DIRECCION    : req.body.DIRECCION,
+        MUNICIPIO    : req.body.MUNICIPIO,
+        PROVINCIA    : req.body.PROVINCIA,
+        ACTIVO       : req.body.ACTIVO
 
       };
       var token = req.headers['authorization'];
@@ -144,6 +154,7 @@ router.post('/usuarios',ensureToken,(req,res) => {
                 if(datos === true){
                   res.status(200).json({
                     success:true,
+                    ID_USUARIO:data.insertId,
                     mensaje: 'Usuario registrado con exito'
                   })
                 }
@@ -172,7 +183,7 @@ router.put('/usuarios/:id',ensureToken,(req,res) => {
     else{
       const usuarioData = {
         ID_USUARIO   : req.params.id,
-        PASSWORD     : bcrypt.hashSync(req.body.password, salt),
+        //PASSWORD     : bcrypt.hashSync(req.body.password, salt),
         NOMBRE       : req.body.nombre,
         EMAIL        : req.body.email,
         SEXO         : req.body.sexo,
@@ -206,6 +217,60 @@ router.put('/usuarios/:id',ensureToken,(req,res) => {
   })
 });
 
+
+//ACTUALIZACIÓN DE UN USUARIO
+router.put('/usuarios/:id/plan',ensureToken,(req,res) => {
+  jwt.verify(req.token,'tecnico',(err,data) =>{
+    if(err){
+      res.sendStatus(403); //Acceso no permitido
+    }
+    else{
+      const planData = {
+        ID_USUARIO   : req.params.id,
+        ID_PLAN      : req.body.ID_PLAN,
+        FECHA_FIN    : req.body.FECHA_FIN
+      };
+
+      Usuario.updateUserPlan(planData,(err,data) => {
+        if(data && data.mensaje){
+          res.status(200).json({
+            success:true,
+            mensaje: 'Usuario actualizado con exito.'
+          })
+        }
+        else{
+          res.status(500).json({
+            success: false,
+            mensaje: 'Error actualizando el Usuario.'
+          });
+        }
+
+      });
+    }
+  })
+});
+
+router.post('/usuarios/:id/renovar',ensureToken,(req,res) => {
+  jwt.verify(req.token,'tecnico',(err,data) =>{
+    if(err){
+      res.sendStatus(403); //Acceso no permitido
+    }
+    else{
+      Usuario.renewUsuario(req.params.id, req.body.FECHA_FIN,(err,data) =>{
+        if(data && data.mensaje){
+          res.status(200).json(data);
+        }
+        else{
+          res.status(500).json({
+            success: false,
+            mensaje: 'Error renewing user'
+          })
+        }
+      })
+    }
+  })
+});
+
 router.post('/usuarios/plan/asignar',ensureToken,(req,res) => {
   jwt.verify(req.token,'tecnico',(err,data) =>{
     if(err){
@@ -213,9 +278,9 @@ router.post('/usuarios/plan/asignar',ensureToken,(req,res) => {
     }
     else{
       const inscritoData = {
-        ID_USUARIO   : req.body.id_usuario,
-        ID_PLAN      : req.body.id_plan,
-        FECHA_FIN    : req.body.fecha_fin
+        ID_USUARIO   : req.body.ID_USUARIO,
+        ID_PLAN      : req.body.ID_PLAN,
+        FECHA_FIN    : req.body.FECHA_FIN
       }
 
       Tecnico.desasignarPlan(inscritoData.ID_USUARIO, (err,data) => {

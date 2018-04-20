@@ -59,8 +59,8 @@ router.post('/actividades',ensureToken,(req,res) => {
     else{
       const actividadData = {
         ID_ACTIVIDAD: null,
-        NOMBRE : req.body.nombre,
-        TIPO_ACTIVIDAD  : req.body.tipo_actividad
+        NOMBRE : req.body.NOMBRE,
+        TIPO_ACTIVIDAD  : req.body.TIPO_ACTIVIDAD
       };
 
       Actividad.insertActividad(actividadData, (err, data) =>{
@@ -110,8 +110,8 @@ router.put('/actividades/:id',ensureToken,(req,res) => {
     else{
       const actividadData = {
         ID_ACTIVIDAD: req.params.id,
-        NOMBRE : req.body.nombre,
-        TIPO_ACTIVIDAD  : req.body.tipo_actividad
+        NOMBRE : req.body.NOMBRE,
+        TIPO_ACTIVIDAD  : req.body.TIPO_ACTIVIDAD
       };
 
       Actividad.updateActividad(actividadData,(err,data) => {

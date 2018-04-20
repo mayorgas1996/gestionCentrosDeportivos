@@ -76,10 +76,6 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(__dirname + '/views'));
-app.use('/js',express.static(path.join(__dirname, 'public/javascripts')));
-app.use('/controllers',express.static(path.join(__dirname, 'public/javascripts/controllers')));
-app.use('/services',express.static(path.join(__dirname, 'public/javascripts/services')));
-app.use('/directives',express.static(path.join(__dirname, 'public/javascripts/directives')));
 
 //Solucion al CORS y "Access-Control-Allow-Origin"
 app.use(function(req, res, next){

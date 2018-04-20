@@ -59,8 +59,8 @@ router.post('/salas',ensureToken,(req,res) => {
     else{
       const salaData = {
         ID_SALA: null,
-        NOMBRE : req.body.nombre,
-        AFORO  : req.body.aforo
+        NOMBRE : req.body.NOMBRE,
+        AFORO  : req.body.AFORO
       };
 
       Sala.insertSala(salaData, (err, data) =>{
@@ -110,8 +110,8 @@ router.put('/salas/:id',ensureToken,(req,res) => {
     else{
       const salaData = {
         ID_SALA: req.params.id,
-        NOMBRE : req.body.nombre,
-        AFORO  : req.body.aforo
+        NOMBRE : req.body.NOMBRE,
+        AFORO  : req.body.AFORO
       };
 
       Sala.updateSala(salaData,(err,data) => {

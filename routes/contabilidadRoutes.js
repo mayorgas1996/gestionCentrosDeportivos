@@ -51,7 +51,7 @@ router.get('/contabilidad/operacion/:id',ensureToken, (req,res) => {
   })
 });
 
-router.post('/contabilidad/ingreso/:id_usuario',ensureToken,(req,res) => {
+router.post('/contabilidad/ingreso',ensureToken,(req,res) => {
   jwt.verify(req.token,'tecnico',(err,data) =>{
     if(err){
       res.sendStatus(403); //Acceso no permitido
@@ -62,9 +62,8 @@ router.post('/contabilidad/ingreso/:id_usuario',ensureToken,(req,res) => {
 
       const operacionData = {
         ID_OPERACION: null,
-        ID_USUARIO : req.params.id_usuario,
-        MOTIVO  : req.body.motivo,
-        CANTIDAD  : req.body.cantidad,
+        MOTIVO  : req.body.MOTIVO,
+        CANTIDAD  : req.body.CANTIDAD,
         FECHA  : date
       };
 
@@ -107,7 +106,7 @@ router.post('/contabilidad/ingreso/:id_usuario',ensureToken,(req,res) => {
   })
 })
 
-router.post('/contabilidad/gasto/:id_usuario',ensureToken,(req,res) => {
+router.post('/contabilidad/gasto',ensureToken,(req,res) => {
   jwt.verify(req.token,'tecnico',(err,data) =>{
     if(err){
       res.sendStatus(403); //Acceso no permitido
@@ -115,12 +114,11 @@ router.post('/contabilidad/gasto/:id_usuario',ensureToken,(req,res) => {
     else{
       var nowDate = new Date();
       var date = nowDate.getFullYear()+'/'+(nowDate.getMonth()+1)+'/'+nowDate.getDate();
-      var cantidad = req.body.cantidad;
+      var cantidad = req.body.CANTIDAD;
       cantidad = cantidad*(-1);
       const operacionData = {
         ID_OPERACION: null,
-        ID_USUARIO : req.params.id_usuario,
-        MOTIVO  : req.body.motivo,
+        MOTIVO  : req.body.MOTIVO,
         CANTIDAD  : cantidad,
         FECHA  : date
       };
@@ -172,10 +170,10 @@ router.put('/contabilidad/operacion/:id',ensureToken,(req,res) => {
     else{
       const operacionData = {
         ID_OPERACION: req.params.id,
-        ID_USUARIO : req.body.id_usuario,
-        MOTIVO  : req.body.motivo,
-        CANTIDAD  : req.body.cantidad,
-        FECHA  : req.body.fecha
+        ID_USUARIO : req.body.ID_USUARIO,
+        MOTIVO  : req.body.MOTIVO,
+        CANTIDAD  : req.body.CANTIDAD,
+        FECHA  : req.body.FECHA
       };
 
       Contabilidad.updateOperacion(operacionData,(err,data) => {

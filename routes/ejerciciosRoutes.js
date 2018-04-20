@@ -105,7 +105,8 @@ router.post('/ejercicios',ensureToken,(req,res) => {
         ID_EJERCICIO   : null,
         NOMBRE : req.body.NOMBRE,
         GRUPO_MUSCULAR: req.body.GRUPO_MUSCULAR,
-        DIFICULTAD: req.body.DIFICULTAD
+        DIFICULTAD: req.body.DIFICULTAD,
+        INFORMACION: req.body.INFORMACION
       };
 
       Ejercicio.insertEjercicio(ejercicioData, (err, data) =>{
@@ -157,7 +158,8 @@ router.put('/ejercicios/:id',ensureToken,(req,res) => {
         ID_EJERCICIO   : req.params.id,
         NOMBRE : req.body.NOMBRE,
         GRUPO_MUSCULAR: req.body.GRUPO_MUSCULAR,
-        DIFICULTAD: req.body.DIFICULTAD
+        DIFICULTAD: req.body.DIFICULTAD,
+        INFORMACION: req.body.INFORMACION
       };
 
       Ejercicio.updateEjercicio(ejercicioData,(err,data) => {

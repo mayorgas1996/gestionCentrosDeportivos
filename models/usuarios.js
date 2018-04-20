@@ -26,12 +26,27 @@ usuarioModel.getUsuarios = (callback) =>{
   }
 };
 
-usuarioModel.getUsuario = (id_usuario,callback) =>{
+usuarioModel.getUsuariosActivosDelCentro = (id_centro, callback) =>{
   if(connection){
+    connection.query('SELECT USUARIO.*,PLAN.ID_PLAN, PLAN.NOMBRE AS PLAN,  DATE_FORMAT(inscrito.FECHA_FIN, "%d/%m/%Y" ) AS FECHA_FIN, DATE_FORMAT(usuario.FECHA_NAC, "%Y-%m-%d" ) AS FECHA_NAC FROM usuario JOIN inscrito JOIN registrado JOIN plan ON usuario.ID_USUARIO = registrado.ID_USUARIO AND USUARIO.ID_USUARIO = inscrito.ID_USUARIO and plan.ID_PLAN = inscrito.ID_PLAN WHERE usuario.ACTIVO = 1 AND registrado.ID_CENTRO = ? ',id_centro,(err, rows)=>{
+      if(err){
+        throw err;
+      }
+      else{
+          console.log("Fecha fin: " + JSON.stringify(rows));
+        callback(null,rows);
+      }
+    });
+  }
+};
 
-    const sql = `SELECT * FROM usuario WHERE ID_USUARIO = ${connection.escape(id_usuario)}`
 
-    connection.query(sql,id_usuario,(err, row)=>{
+usuarioModel.getUsuario = (usuarioData,callback) =>{
+  if(connection){
+    const sql = `SELECT USUARIO.*,PLAN.ID_PLAN, PLAN.NOMBRE AS PLAN,  DATE_FORMAT(inscrito.FECHA_FIN, "%Y-%m-%d" ) AS FECHA_FIN, DATE_FORMAT(usuario.FECHA_NAC, "%Y-%m-%d" ) AS FECHA_NAC FROM usuario JOIN inscrito JOIN registrado JOIN plan
+                ON usuario.ID_USUARIO = registrado.ID_USUARIO AND USUARIO.ID_USUARIO = inscrito.ID_USUARIO and plan.ID_PLAN = inscrito.ID_PLAN
+                WHERE usuario.ID_USUARIO = ${connection.escape(usuarioData.ID_USUARIO)} AND registrado.ID_CENTRO = ${connection.escape(usuarioData.ID_CENTRO)}`;
+    connection.query(sql,(err, row)=>{
 
       if(err){
         throw err;
@@ -61,7 +76,7 @@ usuarioModel.insertUsuario = (usuarioData, callback) =>{
 usuarioModel.updateUsuario = (usuarioData, callback) => {
   if(connection){
     const sql = `UPDATE usuario SET
-    PASSWORD = ${connection.escape(usuarioData.PASSWORD)},
+
     NOMBRE = ${connection.escape(usuarioData.NOMBRE)},
     EMAIL = ${connection.escape(usuarioData.EMAIL)},
     SEXO = ${connection.escape(usuarioData.SEXO)},
@@ -92,9 +107,54 @@ usuarioModel.updateUsuario = (usuarioData, callback) => {
 
 }
 
+usuarioModel.renewUsuario = (id_usuario, fecha_fin, callback) => {
+  if(connection){
+    const sql = `UPDATE inscrito SET
+    FECHA_FIN = ${connection.escape(fecha_fin)}
+
+    WHERE ID_USUARIO = ${connection.escape(id_usuario)}
+    `;
+
+    connection.query(sql, (err,result) =>{
+      if (err){
+        throw err;
+      }
+      else{
+        callback(null,{
+          'mensaje':'Datos actualizados correctamente'
+        })
+      }
+    })
+  }
+
+}
+
+usuarioModel.updateUserPlan = (planData, callback) => {
+  if(connection){
+    const sql = `UPDATE inscrito SET
+    FECHA_FIN = ${connection.escape(planData.FECHA_FIN)},
+    ID_PLAN   = ${connection.escape(planData.ID_PLAN)}
+
+    WHERE ID_USUARIO = ${connection.escape(planData.ID_USUARIO)}
+    `;
+
+    connection.query(sql, (err,result) =>{
+      if (err){
+        throw err;
+      }
+      else{
+        callback(null,{
+          'mensaje':'Datos actualizados correctamente'
+        })
+      }
+    })
+  }
+
+}
+
 usuarioModel.deleteUsuario = (idUsuario, callback) => {
   if(connection){
-    connection.query('DELETE FROM usuario WHERE ID_USUARIO = ?',idUsuario, (err,result) =>{
+    connection.query('UPDATE usuario SET ACTIVO = 0 WHERE ID_USUARIO = ?',idUsuario, (err,result) =>{
       if (err){
         throw err;
       }

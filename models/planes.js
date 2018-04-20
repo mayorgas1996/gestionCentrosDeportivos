@@ -64,8 +64,6 @@ planModel.updatePlan = (planData, callback) => {
       EDAD_MIN = ${connection.escape(planData.EDAD_MIN)},
       EDAD_MAX = ${connection.escape(planData.EDAD_MAX)},
       ACCESO_ZONA_ACUATICA = ${connection.escape(planData.ACCESO_ZONA_ACUATICA)},
-      ACCESO_ACTIVIDADES = ${connection.escape(planData.ACCESO_ACTIVIDADES)},
-      ACCESO_FITNESS = ${connection.escape(planData.ACCESO_FITNESS)},
       SABADOS_Y_DOMINGOS = ${connection.escape(planData.SABADOS_Y_DOMINGOS)}
 
       WHERE ID_PLAN = ${connection.escape(planData.ID_PLAN)}
