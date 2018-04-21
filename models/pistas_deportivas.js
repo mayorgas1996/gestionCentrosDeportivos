@@ -11,7 +11,7 @@ let pistaDeportivaModel = {};
 
 pistaDeportivaModel.getPistasDelCentro = (id_centro,callback) =>{
   if(connection){
-    const sql = `SELECT pista_deportiva.NOMBRE,pista_deportiva.PRECIO_SIN_LUZ,pista_deportiva.PRECIO_CON_LUZ,pista_deportiva.HORA_APERTURA, pista_deportiva.HORA_CIERRE,pista_deportiva.HORA_INICIO_LUZ FROM existen RIGHT JOIN pista_deportiva on existen.ID_PISTA = pista_deportiva.ID_PISTA WHERE ID_CENTRO = ${connection.escape(id_centro)}`
+    const sql = `SELECT pista_deportiva.ID_PISTA, pista_deportiva.ACTIVO, pista_deportiva.NOMBRE,pista_deportiva.PRECIO_SIN_LUZ,pista_deportiva.PRECIO_CON_LUZ,pista_deportiva.HORA_APERTURA, pista_deportiva.HORA_CIERRE,pista_deportiva.HORA_INICIO_LUZ FROM existen RIGHT JOIN pista_deportiva on existen.ID_PISTA = pista_deportiva.ID_PISTA WHERE ID_CENTRO = ${connection.escape(id_centro)}`
 
     connection.query(sql,id_centro,(err, rows)=>{
         if(err){
@@ -78,6 +78,29 @@ pistaDeportivaModel.updatePista = (pistaData, callback) => {
       HORA_APERTURA = ${connection.escape(pistaData.HORA_APERTURA)},
       HORA_CIERRE = ${connection.escape(pistaData.HORA_CIERRE)},
       HORA_INICIO_LUZ = ${connection.escape(pistaData.HORA_INICIO_LUZ)}
+
+      WHERE ID_PISTA = ${connection.escape(pistaData.ID_PISTA)}
+    `;
+
+    connection.query(sql, (err,result) =>{
+      if (err){
+        throw err;
+      }
+      else{
+        callback(null,{
+          'mensaje':'Datos actualizados correctamente'
+        })
+      }
+    })
+  }
+
+}
+
+pistaDeportivaModel.updateEstadoPista = (pistaData, callback) => {
+  if(connection){
+    const sql = `UPDATE pista_deportiva SET
+      ACTIVO = ${connection.escape(pistaData.ACTIVO)}
+
 
       WHERE ID_PISTA = ${connection.escape(pistaData.ID_PISTA)}
     `;

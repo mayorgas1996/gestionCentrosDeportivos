@@ -15,7 +15,7 @@ let tecnicoModel = {};
 
 tecnicoModel.getTecnicosDelCentro = (id_centro, callback) =>{
   if(connection){
-    connection.query('SELECT * FROM tecnico JOIN trabaja ON tecnico.ID_TECNICO = trabaja.ID_TECNICO WHERE trabaja.ID_CENTRO = ?',id_centro,(err, rows)=>{
+    connection.query('SELECT * FROM tecnico JOIN trabaja ON tecnico.ID_TECNICO = trabaja.ID_TECNICO WHERE trabaja.ID_CENTRO = ? AND tecnico.ACTIVO = 1',id_centro,(err, rows)=>{
         if(err){
           throw err;
         }
@@ -113,6 +113,19 @@ tecnicoModel.insertAnota = (anotaData, callback) =>{
 tecnicoModel.deleteTiene = (id_ejercicio, callback) =>{
   if(connection){
     connection.query('DELETE FROM tiene WHERE ID_EJERCICIO = ?', id_ejercicio, (err, result) =>{
+      if(err){
+        throw err;
+      }
+      else{
+        callback(null,true);
+      }
+    })
+  }
+};
+
+tecnicoModel.deleteContiene = (id_ejercicio, callback) =>{
+  if(connection){
+    connection.query('DELETE FROM contiene WHERE ID_EJERCICIO = ?', id_ejercicio, (err, result) =>{
       if(err){
         throw err;
       }
@@ -224,6 +237,30 @@ tecnicoModel.updateMyTecnico = (tecnicoData, callback) => {
       DOMICILIO = ${connection.escape(tecnicoData.DOMICILIO)},
       MUNICIPIO = ${connection.escape(tecnicoData.MUNICIPIO)},
       PROVINCIA = ${connection.escape(tecnicoData.PROVINCIA )}
+
+      WHERE ID_TECNICO = ${connection.escape(tecnicoData.ID_TECNICO)}
+    `;
+
+    connection.query(sql, (err,result) =>{
+      if (err){
+        throw err;
+      }
+      else{
+        callback(null,{
+          'mensaje':'Datos actualizados correctamente'
+        })
+      }
+    })
+  }
+
+}
+
+tecnicoModel.updateContract = (tecnicoData, callback) => {
+  if(connection){
+    console.log("Llega aquí");
+    const sql = `UPDATE tecnico SET
+      ACTIVO = ${connection.escape(tecnicoData.ACTIVO)},
+      BAJA = ${connection.escape(tecnicoData.BAJA)}
 
       WHERE ID_TECNICO = ${connection.escape(tecnicoData.ID_TECNICO)}
     `;

@@ -198,6 +198,38 @@ router.put('/tecnicos/:id',ensureToken,(req,res) => {
   })
 })
 
+
+router.put('/tecnicos/contrato/:id',ensureToken, (req,res) => {
+  jwt.verify(req.token,'director',(err,data) =>{
+    if(err){
+      res.sendStatus(403); //Acceso no permitido
+    }
+    else{
+      console.log("eooo");
+      const tecnicoData = {
+        ID_TECNICO : req.params.id,
+        ACTIVO: req.body.ACTIVO,
+        BAJA  : req.body.BAJA
+      }
+
+      console.log("Llega aquí con " + JSON.stringify(tecnicoData));
+
+      Tecnico.updateContract(tecnicoData,(err,data) =>{
+        if(err != null){
+          res.status(500).json({
+            success: false,
+            mensaje: 'Error actualizando tecnico '
+          })
+        }
+        else{
+          res.status(200).json(data);
+        }
+
+      })
+    }
+  })
+});
+
 router.put('/tecnicos/mi_perfil/:id',ensureToken,(req,res) => {
   jwt.verify(req.token,'tecnico',(err,data) =>{
     if(err){

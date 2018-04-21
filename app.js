@@ -28,40 +28,6 @@ var app = express();
 
 //para mysql
 var mysql      = require('mysql');
-var connection = mysql.createConnection({
-  host     : 'localhost',
-  user     : 'root',
-  password : 'root',
-  database : 'gestion_deportiva'
-});
-
-console.log("Intentamos realizar la conexión con la base de datos.");
-startConnection();
-
-console.log("Intentamos realizar query.");
-
-connection.query("SELECT * FROM administrador", function (err, result) {
-  if (err) throw err;
-
-});
-
-console.log("Intentamos finalizar la conexión con la base de datos");
-endConnection();
-
-function startConnection(){
-  connection.connect(function(err){
-    if(err) throw err;
-    console.log("Conectado a la base de datos.");
-  })
-}
-
-function endConnection(){
-  connection.end(function(err){
-    if(err) throw err;
-    console.log("Finalizada la conexión.");
-  });
-
-};
 
 
 // view engine setup

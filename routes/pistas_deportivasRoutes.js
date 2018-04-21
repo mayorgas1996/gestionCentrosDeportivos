@@ -137,6 +137,34 @@ router.put('/pistas/:id',ensureToken,(req,res) => {
   })
 })
 
+router.put('/pistas/estado/:id',ensureToken,(req,res) => {
+  jwt.verify(req.token,'director',(err,data) =>{
+    if(err){
+      res.sendStatus(403); //Acceso no permitido
+    }
+    else{
+      const pistaData = {
+        ID_PISTA     : req.params.id,
+        ACTIVO       : req.body.ACTIVO
+      };
+
+      PistaDeportiva.updateEstadoPista(pistaData,(err,data) => {
+        if(data && data.mensaje){
+          res.status(200).json(data);
+        }
+        else{
+          res.status(500).json({
+            success: false,
+            mensaje: 'Error'
+          })
+        }
+
+      })
+
+    }
+  })
+})
+
 router.post('/pistas/:id',ensureToken,(req,res) => {
   jwt.verify(req.token,'director',(err,data) =>{
     if(err){

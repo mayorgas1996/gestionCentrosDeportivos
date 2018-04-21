@@ -188,6 +188,8 @@ router.post('/ejercicios/:id',ensureToken,(req,res) => {
       res.sendStatus(403); //Acceso no permitido
     }
     else{
+      Tecnico.deleteContiene(req.params.id, (err,data) =>{
+        if(data === true){
       Tecnico.deleteTiene(req.params.id, (err,data) =>{
         if(data === true){
           Ejercicio.deleteEjercicio(req.params.id, (err,data) =>{
@@ -211,6 +213,14 @@ router.post('/ejercicios/:id',ensureToken,(req,res) => {
             mensaje: 'Error deleting Ejercicio.'
           })
         }
+      })
+    }
+    else{
+      res.status(500).json({
+        success: false,
+        mensaje: 'Error deleting Contiene.'
+      })
+    }
       })
     }
   })
