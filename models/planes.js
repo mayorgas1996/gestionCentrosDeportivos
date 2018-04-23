@@ -83,6 +83,31 @@ planModel.updatePlan = (planData, callback) => {
 
 }
 
+
+planModel.updateEstadoPlan = (planData, callback) => {
+  if(connection){
+    const sql = `UPDATE plan SET
+      ACTIVO = ${connection.escape(planData.ACTIVO)}
+
+
+      WHERE ID_PLAN = ${connection.escape(planData.ID_PLAN)}
+    `;
+
+    connection.query(sql, (err,result) =>{
+      if (err){
+        throw err;
+      }
+      else{
+        callback(null,{
+          'mensaje':'Datos actualizados correctamente'
+        })
+      }
+    })
+  }
+
+}
+
+
 planModel.deletePlan = (id_plan, callback) => {
   if(connection){
     connection.query('DELETE FROM plan WHERE ID_PLAN = ?',id_plan, (err,result) =>{

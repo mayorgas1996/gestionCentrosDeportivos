@@ -41,6 +41,44 @@ actividadModel.getActividad = (id_actividad,callback) =>{
   }
 };
 
+//ACTIVIDADES IMPARTIDAS EN UN CENTRO
+
+actividadModel.tecnicosDisponibles = (disponibilidadData,callback) =>{
+  if(connection){
+
+    const sql = `SELECT tecnico.* FROM tecnico join trabaja on tecnico.ID_TECNICO = trabaja.ID_TECNICO WHERE trabaja.ID_CENTRO = ${connection.escape(disponibilidadData.ID_CENTRO)} and tecnico.ACTIVO = 1 and tecnico.BAJA = 0 and tecnico.DEPORTIVO = 1 and tecnico.ID_TECNICO not in (SELECT impartida.ID_TECNICO as ID_TECNICO from propone join impartida on propone.ID_ACTIVIDAD = impartida.ID_ACTIVIDAD
+      where propone.ID_CENTRO = ${connection.escape(disponibilidadData.ID_CENTRO)} and impartida.DIA_SEMANA = ${connection.escape(disponibilidadData.DIA_SEMANA)} and impartida.HORA_FIN> CAST(${connection.escape(disponibilidadData.HORA_INICIO)} AS time) and impartida.HORA_FIN<= CAST(${connection.escape(disponibilidadData.HORA_FIN)} AS time))`
+
+    connection.query(sql,(err, row)=>{
+
+        if(err){
+          throw err;
+        }
+        else{
+          callback(null,row);
+        }
+    });
+  }
+};
+
+actividadModel.salasDisponibles = (disponibilidadData,callback) =>{
+  if(connection){
+
+    const sql = `SELECT * FROM sala join hay on sala.ID_SALA = hay.ID_SALA WHERE hay.ID_CENTRO = ${connection.escape(disponibilidadData.ID_CENTRO)} and sala.activo = 1 and sala.ID_SALA not in (SELECT impartida.ID_SALA as ID_SALA from propone join impartida on propone.ID_ACTIVIDAD = impartida.ID_ACTIVIDAD
+      where propone.ID_CENTRO = ${connection.escape(disponibilidadData.ID_CENTRO)} and impartida.DIA_SEMANA = ${connection.escape(disponibilidadData.DIA_SEMANA)} and impartida.HORA_FIN> CAST(${connection.escape(disponibilidadData.HORA_INICIO)} AS time) and impartida.HORA_FIN<= CAST(${connection.escape(disponibilidadData.HORA_FIN)} AS time))`
+
+    connection.query(sql,(err, row)=>{
+
+        if(err){
+          throw err;
+        }
+        else{
+          callback(null,row);
+        }
+    });
+  }
+};
+
 actividadModel.insertActividad = (actividadData, callback) =>{
   if(connection){
     connection.query('INSERT INTO actividad SET ?', actividadData, (err, result) =>{
