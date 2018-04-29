@@ -25,6 +25,9 @@ var engines = require('consolidate');
 
 var app = express();
 
+//Explicar en la documentación y buscar info
+var compression = require('compression')
+app.use(compression());
 
 //para mysql
 var mysql      = require('mysql');
@@ -44,15 +47,14 @@ app.use(cookieParser());
 app.use(express.static(__dirname + '/views'));
 
 //Solucion al CORS y "Access-Control-Allow-Origin"
-app.use(function(req, res, next){
-  res.setHeader('Access-Control-Allow-Origin', "*");
-  res.setHeader('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
-  res.setHeader('Access-Control-Allow-Origin', 'Content-Type');
-  res.setHeader('Access-Control-Allow-Headers', 'Authorization'); //Para que nos permita pasar el Bearer Token por la cabecera
-  res.setHeader('Access-Control-Allow-Credentials', true);
+app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Headers', 'Authorization, X-API-KEY, Origin, X-Requested-With, Content-Type, Accept, Access-Control-Allow-Request-Method');
+    res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, DELETE');
+    res.header('Allow', 'GET, POST, OPTIONS, PUT, DELETE');
 
-  next();
-})
+    next();
+});
 
 app.use('/', index);
 app.use('/', admins);

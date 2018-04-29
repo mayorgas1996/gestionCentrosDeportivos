@@ -167,6 +167,7 @@ adminModel.conocerID = (email, callback) =>{
     connection.query(sql,(err, row)=>{
 
       if(err){
+        console.log(err);
         throw err;
       }
       else if(row.length == 0){

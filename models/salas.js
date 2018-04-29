@@ -79,6 +79,28 @@ salaModel.updateSala = (salaData, callback) => {
 
 }
 
+salaModel.updateEstadoSala = (salaData, callback) => {
+  if(connection){
+    const sql = `UPDATE sala SET
+      ACTIVO = ${connection.escape(salaData.ACTIVO)}
+
+      WHERE ID_SALA= ${connection.escape(salaData.ID_SALA)}
+    `;
+
+    connection.query(sql, (err,result) =>{
+      if (err){
+        throw err;
+      }
+      else{
+        callback(null,{
+          'mensaje':'Datos actualizados correctamente'
+        })
+      }
+    })
+  }
+
+}
+
 salaModel.deleteSala = (id_sala, callback) => {
   if(connection){
     connection.query('DELETE FROM sala WHERE ID_SALA = ?',id_sala, (err,result) =>{

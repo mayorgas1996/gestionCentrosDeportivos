@@ -194,6 +194,66 @@ router.post('/actividades/disponibilidad/salas',ensureToken,(req,res) => {
   })
 })
 
+router.get('/horario/actividades', ensureToken,(req,res) => {
+  jwt.verify(req.token,'director',(err,data) =>{
+    if(err){
+      res.sendStatus(403); //Acceso no permitido
+    }
+    else{
+      var token = req.headers['authorization'];
+      token = token.replace('Bearer ', '');
+      var decoded = jwtDecode(token);
+
+      Actividad.getHorarioDelCentro(decoded.directorData.ID_CENTRO,(err,data) =>{
+        if(data){
+          res.status(200).json(data);
+        }
+        else{
+          res.status(500).json({
+            success: false,
+            mensaje: 'Error'
+          })
+        }
+      })
+    }
+  })
+
+});
+
+router.post('/horario/actividades/',ensureToken,(req,res) => {
+  var token = req.headers['authorization'];
+  token = token.replace('Bearer ', '');
+  var decoded = jwtDecode(token);
+  jwt.verify(req.token,'director',(err,data) =>{
+    if(err){
+      res.sendStatus(403); //Acceso no permitido
+    }
+    else{
+      const impartidaData = {
+        ID_ACTIVIDAD : req.body.ID_ACTIVIDAD,
+        DIA_SEMANA   : req.body.DIA_SEMANA  ,
+        HORA_INICIO  : req.body.HORA_INICIO ,
+        HORA_FIN     : req.body.HORA_FIN    ,
+        ID_TECNICO   : req.body.ID_TECNICO  ,
+        ID_SALA      : req.body.ID_SALA
+      };
+
+      Actividad.insertImpartida(impartidaData,(err,data) => {
+        if(data){
+          res.status(200).json(data);
+        }
+        else{
+          res.status(500).json({
+            success: false,
+            mensaje: 'Error'
+          })
+        }
+
+      })
+    }
+  })
+})
+
 router.post('/actividades/:id',ensureToken,(req,res) => {
   jwt.verify(req.token,'director',(err,data) =>{
     if(err){

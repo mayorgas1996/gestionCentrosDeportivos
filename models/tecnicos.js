@@ -299,7 +299,7 @@ tecnicoModel.deleteTecnico = (id_tecnico, callback) => {
 tecnicoModel.login = (tecnicoData, callback) => {
   if(connection){
     const sql = `SELECT * FROM tecnico WHERE
-    EMAIL =  ${connection.escape(tecnicoData.EMAIL)}`;
+    EMAIL =  ${connection.escape(tecnicoData.EMAIL)} AND BAJA = 0 AND ACTIVO = 1`;
 
     connection.query(sql,(err, row)=>{
 

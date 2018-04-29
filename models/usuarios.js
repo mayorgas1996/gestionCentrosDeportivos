@@ -171,7 +171,7 @@ usuarioModel.deleteUsuario = (idUsuario, callback) => {
 usuarioModel.login = (usuarioData, callback) => {
   if(connection){
     const sql = `SELECT * FROM usuario WHERE
-    EMAIL =  ${connection.escape(usuarioData.EMAIL)}`;
+    EMAIL =  ${connection.escape(usuarioData.EMAIL)} AND ACTIVO = 1`;
 
     connection.query(sql,(err, row)=>{
 

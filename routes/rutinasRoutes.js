@@ -33,13 +33,16 @@ router.get('/rutinas',ensureToken, (req,res) => {
 });
 
 router.get('/rutinas/:id',ensureToken, (req,res) => {
+  var token = req.headers['authorization'];
+  token = token.replace('Bearer ', '');
+  var decoded = jwtDecode(token);
   jwt.verify(req.token,'tecnico',(err,data) =>{
     if(err){
       res.sendStatus(403); //Acceso no permitido
     }
     else{
       var id = req.params.id;
-      Rutina.getRutina(id,(err,data) =>{
+      Rutina.getRutinaDelCentro(id,decoded.tecnicoData.ID_CENTRO ,(err,data) =>{
         if(err != null){
           res.status(500).json({
             success: false,
@@ -47,6 +50,31 @@ router.get('/rutinas/:id',ensureToken, (req,res) => {
           })
         }
         else{
+          console.log("Devuelta la rutina: " + JSON.stringify(data));
+          res.status(200).json(data);
+        }
+
+      })
+    }
+  })
+});
+
+router.get('/rutinas/:id/ejercicios',ensureToken, (req,res) => {
+  jwt.verify(req.token,'tecnico',(err,data) =>{
+    if(err){
+      res.sendStatus(403); //Acceso no permitido
+    }
+    else{
+      var id = req.params.id;
+      Rutina.getEjerciciosRutina(id,(err,data) =>{
+        if(err != null){
+          res.status(500).json({
+            success: false,
+            mensaje: 'Error buscando rutina.'
+          })
+        }
+        else{
+          console.log("Ejercicios obtenidos: " + JSON.stringify(data));
           res.status(200).json(data);
         }
 
@@ -94,7 +122,7 @@ router.post('/rutinas/buscar',ensureToken,(req,res)=> {
 
 })
 
-//INSERTAR O REGISTRAR UN EJERCICIO
+//INSERTAR O REGISTRAR UNA RUTINA
 router.post('/rutinas',ensureToken,(req,res) => {
   jwt.verify(req.token,'tecnico',(err,data) =>{
     if(err){
@@ -123,7 +151,8 @@ router.post('/rutinas',ensureToken,(req,res) => {
               res.status(200).json({
                 success: true,
                 mensaje: 'Rutina registrada correctamente',
-                data: data
+                data: data,
+                ID: disponeData.ID_RUTINA
               })
             }
             else{
@@ -214,30 +243,43 @@ router.post('/rutinas/:id',ensureToken,(req,res) => {
   })
 });
 
-router.post('/rutinas/:id/add/:id_ejercicio',ensureToken,(req,res) => {
+router.post('/rutinas/:id/add',ensureToken,(req,res) => {
   jwt.verify(req.token,'tecnico',(err,data) =>{
     if(err){
       res.sendStatus(403); //Acceso no permitido
     }
     else{
+
       const contieneData = {
         ID_RUTINA   : req.params.id,
-        ID_EJERCICIO: req.params.id_ejercicio,
+        EJERCICIOS: req.body.EJERCICIOS,
         SERIES: req.body.SERIES,
         REPETICIONES : req.body.REPETICIONES
       };
 
-      Rutina.addEjercicio(contieneData,(err,data) => {
-        if(data && data.mensaje){
-          res.status(200).json({
-            success:true,
-            mensaje: 'Ejercicio añadido con exito.'
-          })
+      Rutina.deleteEjerciciosAnteriores(req.params.id,(err,data) =>{
+        if(!err){
+          Rutina.addEjercicio(contieneData,(err,data) => {
+            if(data && data.mensaje){
+              res.status(200).json({
+                success:true,
+                mensaje: 'Ejercicio añadido con exito.'
+              })
+            }
+            else{
+              res.status(500).json({
+                success: false,
+                mensaje: 'Error actualizando la Rutina.'
+              });
+            }
+
+          });
+
         }
         else{
           res.status(500).json({
             success: false,
-            mensaje: 'Error actualizando la Rutina.'
+            mensaje: 'Error borrando ejercicios de la Rutina.'
           });
         }
 

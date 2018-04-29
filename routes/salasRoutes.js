@@ -130,6 +130,34 @@ router.put('/salas/:id',ensureToken,(req,res) => {
   })
 })
 
+router.put('/salas/estado/:id',ensureToken,(req,res) => {
+  jwt.verify(req.token,'director',(err,data) =>{
+    if(err){
+      res.sendStatus(403); //Acceso no permitido
+    }
+    else{
+      const planesData = {
+        ID_SALA     : req.params.id,
+        ACTIVO      : req.body.ACTIVO
+      };
+
+      Sala.updateEstadoSala(planesData,(err,data) => {
+        if(data && data.mensaje){
+          res.status(200).json(data);
+        }
+        else{
+          res.status(500).json({
+            success: false,
+            mensaje: 'Error'
+          })
+        }
+
+      })
+
+    }
+  })
+})
+
 router.post('/salas/:id',ensureToken,(req,res) => {
   jwt.verify(req.token,'director',(err,data) =>{
     if(err){
