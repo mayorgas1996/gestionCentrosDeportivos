@@ -205,14 +205,11 @@ router.put('/tecnicos/contrato/:id',ensureToken, (req,res) => {
       res.sendStatus(403); //Acceso no permitido
     }
     else{
-      console.log("eooo");
       const tecnicoData = {
         ID_TECNICO : req.params.id,
         ACTIVO: req.body.ACTIVO,
         BAJA  : req.body.BAJA
       }
-
-      console.log("Llega aquí con " + JSON.stringify(tecnicoData));
 
       Tecnico.updateContract(tecnicoData,(err,data) =>{
         if(err != null){

@@ -122,6 +122,31 @@ router.post('/rutinas/buscar',ensureToken,(req,res)=> {
 
 })
 
+
+router.get('/rutinas/usuario/:id',ensureToken,(req,res)=> {
+  jwt.verify(req.token,'tecnico',(err,data) => {
+    if(err){
+      res.sendStatus(403); //Acceso no permitido
+    }
+    else{
+
+      Rutina.buscarRutinaDelUsuario(req.params.id,(err,data) =>{
+        if(data){
+          res.status(200).json(data);
+        }
+        else{
+          res.status(500).json({
+            success: false,
+            mensaje: 'Error buscando rutina'
+          })
+        }
+      })
+    }
+  })
+
+})
+
+
 //INSERTAR O REGISTRAR UNA RUTINA
 router.post('/rutinas',ensureToken,(req,res) => {
   jwt.verify(req.token,'tecnico',(err,data) =>{
@@ -243,7 +268,7 @@ router.post('/rutinas/:id',ensureToken,(req,res) => {
   })
 });
 
-router.post('/rutinas/:id/add',ensureToken,(req,res) => {
+router.post('/rutinas/add/:id',ensureToken,(req,res) => {
   jwt.verify(req.token,'tecnico',(err,data) =>{
     if(err){
       res.sendStatus(403); //Acceso no permitido
@@ -288,6 +313,49 @@ router.post('/rutinas/:id/add',ensureToken,(req,res) => {
   })
 });
 
+router.post('/rutinas/user/add',ensureToken,(req,res) => {
+  jwt.verify(req.token,'tecnico',(err,data) =>{
+    if(err){
+      res.sendStatus(403); //Acceso no permitido
+    }
+    else{
+      const poseeData = {
+        ID_USUARIO  : req.body.ID_USUARIO,
+        ID_RUTINA   : req.body.ID_RUTINA
+
+      };
+      console.log("PoseeData: " + JSON.stringify(poseeData));
+      Rutina.deletePosee(req.body.ID_USUARIO,(err,data) =>{
+        if(!err){
+          console.log("Borradas existencias");
+          Rutina.addPosee(poseeData,(err,data) => {
+            if(!err){
+              res.status(200).json({
+                success:true,
+                mensaje: 'Rutina asignada con exito.'
+              })
+            }
+            else{
+              res.status(500).json({
+                success: false,
+                mensaje: 'Error asignando la Rutina.'
+              });
+            }
+
+          });
+
+        }
+        else{
+          res.status(500).json({
+            success: false,
+            mensaje: 'Error borrando asignación de la Rutina.'
+          });
+        }
+
+      });
+    }
+  })
+});
 
 //Middleware que nos comprueba que un administrador ya ha iniciado sesión
 function ensureToken(req, res, next){

@@ -431,7 +431,7 @@ router.get('/usuarios/usuario/:id/analisis',ensureToken, (req,res) => {
   })
 });
 
-router.get('/usuarios/usuario/:id/analisis/:id_analisis',ensureToken, (req,res) => {
+router.get('/analisis/:id_analisis',ensureToken, (req,res) => {
   jwt.verify(req.token,'tecnico',(err,data) =>{
     if(err){
       res.sendStatus(403); //Acceso no permitido

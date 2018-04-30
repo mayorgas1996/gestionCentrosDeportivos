@@ -73,6 +73,22 @@ rutinaModel.insertRutina = (rutinaData, callback) =>{
   }
 };
 
+rutinaModel.addPosee = (poseeData, callback) =>{
+  if(connection){
+    console.log(JSON.stringify(poseeData));
+    connection.query('INSERT INTO posee SET ?', poseeData, (err, result) =>{
+      if(err){
+        throw err;
+      }
+      else{
+        callback(null,{
+          'insertId':result.insertId
+        })
+      }
+    })
+  }
+};
+
 rutinaModel.addEjercicio = (contieneData, callback) =>{
   if(connection){
     var paso;
@@ -141,6 +157,21 @@ rutinaModel.deleteEjerciciosAnteriores = (id_rutina, callback) => {
 
 }
 
+rutinaModel.deletePosee = (id_usuario, callback) => {
+  if(connection){
+    connection.query('DELETE FROM posee WHERE ID_USUARIO = ?',id_usuario, (err,result) =>{
+      if (err){
+        throw err;
+      }
+      else{
+        callback(null,{
+          'mensaje':'Asignación borrada'
+        })
+      }
+    })
+  }
+
+}
 
 rutinaModel.deleteRutina = (id_rutina, callback) => {
   if(connection){
@@ -158,6 +189,23 @@ rutinaModel.deleteRutina = (id_rutina, callback) => {
 
 }
 
+
+rutinaModel.buscarRutinaDelUsuario = (id_usuario,callback) =>{
+    if(connection){
+
+      const sql = `SELECT rutina.* FROM posee join rutina on posee.ID_RUTINA = rutina.ID_RUTINA where posee.ID_USUARIO = ${connection.escape(id_usuario)}`;
+
+      connection.query(sql,(err,rows)=>{
+        if(err){
+          throw err;
+        }
+        else{
+          callback(null,rows);
+        }
+      })
+    }
+
+  }
 
 rutinaModel.buscarRutinaEnCentro = (id_centro, busquedaData,callback) =>{
     if(connection){
