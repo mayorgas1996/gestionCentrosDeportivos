@@ -13,7 +13,7 @@ rutinaModel.getRutinasDelCentro = (id_centro,callback) =>{
   if(connection){
     const sql = `SELECT * FROM dispone JOIN rutina ON dispone.ID_RUTINA = rutina.ID_RUTINA WHERE dispone.ID_CENTRO = ${connection.escape(id_centro)}`
 
-    connection.query(sql,id_centro,(err, rows)=>{
+    connection.query(sql,(err, rows)=>{
         if(err){
           throw err;
         }
@@ -101,8 +101,6 @@ rutinaModel.addEjercicio = (contieneData, callback) =>{
     };
 
     var sql = 'INSERT INTO contiene (ID_RUTINA, ID_EJERCICIO, SERIES, REPETICIONES) VALUES ' + values;
-
-    console.log("La sentencia a ejecutar es: " + sql)
 
     connection.query(sql, (err, result) =>{
       if(err){
@@ -226,6 +224,24 @@ rutinaModel.buscarRutinaEnCentro = (id_centro, busquedaData,callback) =>{
       })
     }
 
+  }
+
+
+  rutinaModel.getMiRutina = (id_usuario, fecha,callback) =>{
+    if(connection){
+      const sql = `SELECT DATE_FORMAT(posee.FECHA_INICIO, "%d/%m/%Y" ) AS FECHA_INICIO ,rutina.NOMBRE AS RUTINA, ejercicio.*, contiene.SERIES, contiene.REPETICIONES
+      FROM posee JOIN rutina JOIN ejercicio join contiene
+      ON posee.ID_RUTINA = rutina.ID_RUTINA and rutina.ID_RUTINA = contiene.ID_RUTINA and contiene.ID_EJERCICIO = ejercicio.ID_EJERCICIO where posee.ID_USUARIO = ${connection.escape(id_usuario)}`
+
+      connection.query(sql,(err, rows)=>{
+          if(err){
+            throw err;
+          }
+          else{
+            callback(null,rows);
+          }
+      });
+    }
   }
 
 module.exports = rutinaModel;

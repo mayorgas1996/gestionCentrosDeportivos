@@ -14,6 +14,7 @@ const Tecnico = require('../models/tecnicos');
 const CentroDeportivo = require('../models/centros_deportivos');
 const Usuario = require('../models/usuarios');
 const Analisis = require('../models/analisis');
+const Rutina = require('../models/rutinas');
 
 /* GET users listing. */
 router.get('/usuarios_activos',ensureToken, (req,res) => {
@@ -46,14 +47,16 @@ router.get('/usuarios/usuario/:id',ensureToken, (req,res) => {
         ID_USUARIO: req.params.id,
         ID_CENTRO : decoded.tecnicoData.ID_CENTRO
       }
-      Usuario.getUsuario(usuarioData,(err,data) =>{
+      console.log(JSON.stringify(usuarioData));
+      Usuario.getUsuario(usuarioData.ID_USUARIO, usuarioData.ID_CENTRO,(err,data) =>{
         if(err != null){
           res.status(500).json({
             success: false,
-            mensaje: 'Error buscando usuario ' + req.params.id
+            mensaje: 'Error buscando usuario'
           })
         }
         else{
+          console.log("Va a devolver: " + data);
           res.status(200).json(data);
         }
 
@@ -100,6 +103,70 @@ router.post('/usuarios/buscar',ensureToken,(req,res)=> {
   })
 
 })
+
+//Ruta para poder ver el técnico su propio perfil
+router.post('/usuarios/mi_perfil',ensureToken,(req,res) => {
+  jwt.verify(req.token,'usuario',(err,data) =>{
+    if(err){
+      res.sendStatus(403); //Acceso no permitido
+    }
+    else{
+      var token = req.headers['authorization'];
+      token = token.replace('Bearer ', '');
+      var decoded = jwtDecode(token);
+      Usuario.getUsuario(decoded.usuarioData.ID_USUARIO, decoded.usuarioData.ID_CENTRO,(err,data) =>{
+        if(err != null){
+          res.status(500).json({
+            success: false,
+            mensaje: 'Error buscando usuario.'
+          })
+        }
+        else{
+          console.log("Recogidos datos: " + data);
+          res.status(200).json(data);
+        }
+
+      })
+
+    }
+  })
+});
+
+
+router.put('/usuarios/mi_perfil/:id',ensureToken,(req,res) => {
+  jwt.verify(req.token,'usuario',(err,data) =>{
+    if(err){
+      res.sendStatus(403); //Acceso no permitido
+    }
+    else{
+      const usuarioData = {
+        ID_USUARIO: req.params.id,
+        PASSWORD: bcrypt.hashSync(req.body.password, salt),
+        NOMBRE  : req.body.nombre,
+        EMAIL   : req.body.email,
+        TELEFONO: req.body.telefono,
+        DIRECCION: req.body.direccion,
+        MUNICIPIO: req.body.municipio,
+        PROVINCIA: req.body.provincia,
+        OBSERVACIONES: req.body.observaciones,
+        SEXO : req.body.sexo
+      };
+      Usuario.updateMyUsuario(usuarioData,(err,data) => {
+        if(data && data.mensaje){
+          res.status(200).json(data);
+        }
+        else{
+          console.log("Error");
+          res.status(500).json({
+            success: false,
+            mensaje: 'Error'
+          })
+        }
+
+      })
+    }
+  })
+});
 
 //INSERTAR O REGISTRAR UN USUARIO, PARA ELLO TAMBIEN SE INSERTA EN LA TABLA 'REGISTRADO' JUNTO CON LA TABLA 'TECNICO'
 // HACEMOS COMPROBACIÓN DE QUE EL CENTRO DEPORTIVO AL QUE SE ASIGNA DICHO USUARIO EXISTE
@@ -183,7 +250,6 @@ router.put('/usuarios/:id',ensureToken,(req,res) => {
     else{
       const usuarioData = {
         ID_USUARIO   : req.params.id,
-        //PASSWORD     : bcrypt.hashSync(req.body.password, salt),
         NOMBRE       : req.body.nombre,
         EMAIL        : req.body.email,
         SEXO         : req.body.sexo,
@@ -431,6 +497,34 @@ router.get('/usuarios/usuario/:id/analisis',ensureToken, (req,res) => {
   })
 });
 
+router.get('/usuarios/usuario/:id/ultimoAnalisis',ensureToken, (req,res) => {
+  jwt.verify(req.token,'usuario',(err,data) =>{
+    if(err){
+      res.sendStatus(403); //Acceso no permitido
+    }
+    else{
+      var id = req.params.id;
+      Analisis.getAnalisisDelUsuario(id,(err,data) =>{
+        if(err != null){
+          res.status(500).json({
+            success: false,
+            mensaje: 'Error buscando analisis.'
+          })
+        }
+        else if(data.length === 0){
+          res.status(200).json({
+            success: true,
+            mensaje: "No se han encontrado analisis."
+          });
+        }
+        else{
+          res.status(200).json(data);
+        }
+      })
+    }
+  })
+});
+
 router.get('/analisis/:id_analisis',ensureToken, (req,res) => {
   jwt.verify(req.token,'tecnico',(err,data) =>{
     if(err){
@@ -443,6 +537,88 @@ router.get('/analisis/:id_analisis',ensureToken, (req,res) => {
           res.status(500).json({
             success: false,
             mensaje: 'Error buscando analisis.'
+          })
+        }
+        else{
+          res.status(200).json(data);
+        }
+      })
+    }
+  })
+});
+
+router.get('/reservas/:fecha',ensureToken, (req,res) => {
+  jwt.verify(req.token,'usuario',(err,data) =>{
+    if(err){
+      res.sendStatus(403); //Acceso no permitido
+    }
+    else{
+      var token = req.headers['authorization'];
+      token = token.replace('Bearer ', '');
+      var decoded = jwtDecode(token);
+
+      Usuario.getReservas(decoded.usuarioData.ID_USUARIO, req.params.fecha,(err,data) =>{
+        if(err != null){
+          res.status(500).json({
+            success: false,
+            mensaje: 'Error buscando reservas.'
+          })
+        }
+        else{
+          res.status(200).json(data);
+        }
+      })
+    }
+  })
+});
+
+router.post('/reserva/eliminar',ensureToken, (req,res) => {
+  jwt.verify(req.token,'usuario',(err,data) =>{
+    if(err){
+      res.sendStatus(403); //Acceso no permitido
+    }
+    else{
+      var token = req.headers['authorization'];
+      token = token.replace('Bearer ', '');
+      var decoded = jwtDecode(token);
+
+      const reservaData = {
+        ID_PISTA    : req.body.ID_PISTA,
+        FECHA       : req.body.FECHA,
+        HORA        : req.body.HORA,
+        ID_USUARIO  : decoded.usuarioData.ID_USUARIO,
+      };
+
+      Usuario.deleteReserva(reservaData,(err,data) =>{
+        if(err != null){
+          res.status(500).json({
+            success: false,
+            mensaje: 'Error eliminando reserva.'
+          })
+        }
+        else{
+          res.status(200).json(data);
+        }
+      })
+    }
+  })
+});
+
+router.get('/usuario/mi_rutina/:fecha',ensureToken, (req,res) => {
+  jwt.verify(req.token,'usuario',(err,data) =>{
+    if(err){
+      res.sendStatus(403); //Acceso no permitido
+    }
+    else{
+      var token = req.headers['authorization'];
+      token = token.replace('Bearer ', '');
+      var decoded = jwtDecode(token);
+
+      Rutina.getMiRutina(decoded.usuarioData.ID_USUARIO, req.params.fecha,(err,data) =>{
+        if(err != null){
+          res.status(500).json({
+            success: false,
+            mensaje: 'Error buscando rutina.'
           })
         }
         else{

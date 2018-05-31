@@ -41,18 +41,35 @@ usuarioModel.getUsuariosActivosDelCentro = (id_centro, callback) =>{
 };
 
 
-usuarioModel.getUsuario = (usuarioData,callback) =>{
+usuarioModel.getUsuario = (idUsuario, idCentro,callback) =>{
   if(connection){
     const sql = `SELECT USUARIO.*,PLAN.ID_PLAN, PLAN.NOMBRE AS PLAN,  DATE_FORMAT(inscrito.FECHA_FIN, "%Y-%m-%d" ) AS FECHA_FIN, DATE_FORMAT(usuario.FECHA_NAC, "%Y-%m-%d" ) AS FECHA_NAC FROM usuario JOIN inscrito JOIN registrado JOIN plan
                 ON usuario.ID_USUARIO = registrado.ID_USUARIO AND USUARIO.ID_USUARIO = inscrito.ID_USUARIO and plan.ID_PLAN = inscrito.ID_PLAN
-                WHERE usuario.ID_USUARIO = ${connection.escape(usuarioData.ID_USUARIO)} AND registrado.ID_CENTRO = ${connection.escape(usuarioData.ID_CENTRO)}`;
+                WHERE usuario.ID_USUARIO = ${connection.escape(idUsuario)} AND registrado.ID_CENTRO = ${connection.escape(idCentro)}`;
     connection.query(sql,(err, row)=>{
 
       if(err){
         throw err;
       }
       else{
+        console.log("Ha devuelto resultado");
         callback(null,row);
+      }
+    });
+  }
+};
+
+usuarioModel.getReservas = (id_usuario, fecha, callback) =>{
+  if(connection){
+
+    const sql = `SELECT DATE_FORMAT(reserva.FECHA, "%d/%m/%Y" ) AS FECHA, reserva.ID_PISTA, reserva.ID_USUARIO, TIME_FORMAT(reserva.HORA, '%H:00') as HORA, pista_deportiva.NOMBRE, pista_deportiva.PRECIO_SIN_LUZ, pista_deportiva.PRECIO_CON_LUZ, pista_deportiva.HORA_INICIO_LUZ FROM reserva join pista_deportiva on reserva.ID_PISTA = pista_deportiva.ID_PISTA WHERE reserva.ID_USUARIO =  ${connection.escape(id_usuario)} AND reserva.FECHA >=  ${connection.escape(fecha)} order by FECHA,HORA ASC`;
+
+    connection.query(sql,(err, rows)=>{
+      if(err){
+        throw err;
+      }
+      else{
+        callback(null,rows);
       }
     });
   }
@@ -91,6 +108,36 @@ usuarioModel.updateUsuario = (usuarioData, callback) => {
     ACTIVO = ${connection.escape(usuarioData.ACTIVO)}
 
     WHERE ID_USUARIO = ${connection.escape(usuarioData.ID_USUARIO)}
+    `;
+
+    connection.query(sql, (err,result) =>{
+      if (err){
+        throw err;
+      }
+      else{
+        callback(null,{
+          'mensaje':'Datos actualizados correctamente'
+        })
+      }
+    })
+  }
+
+}
+
+usuarioModel.updateMyUsuario = (usuarioData, callback) => {
+  if(connection){
+    const sql = `UPDATE usuario SET
+      PASSWORD = ${connection.escape(usuarioData.PASSWORD)},
+      NOMBRE = ${connection.escape(usuarioData.NOMBRE)},
+      EMAIL = ${connection.escape(usuarioData.EMAIL)},
+      TELEFONO = ${connection.escape(usuarioData.TELEFONO)},
+      DIRECCION = ${connection.escape(usuarioData.DIRECCION)},
+      MUNICIPIO = ${connection.escape(usuarioData.MUNICIPIO)},
+      PROVINCIA = ${connection.escape(usuarioData.PROVINCIA )},
+      OBSERVACIONES = ${connection.escape(usuarioData.OBSERVACIONES )},
+      SEXO = ${connection.escape(usuarioData.SEXO )}
+
+      WHERE ID_USUARIO = ${connection.escape(usuarioData.ID_USUARIO)}
     `;
 
     connection.query(sql, (err,result) =>{
@@ -165,20 +212,43 @@ usuarioModel.deleteUsuario = (idUsuario, callback) => {
       }
     })
   }
-
 }
+
+usuarioModel.deleteReserva = (reservaData, callback) =>{
+  if(connection){
+
+    const sql = `DELETE FROM reserva WHERE
+      ID_USUARIO = ${connection.escape(reservaData.ID_USUARIO)} AND
+      ID_PISTA   = ${connection.escape(reservaData.ID_PISTA)} AND
+      FECHA   = ${connection.escape(reservaData.FECHA)} AND
+      HORA   = ${connection.escape(reservaData.HORA)}
+      `;
+    console.log("Consulta eliminación: " + sql);
+
+    connection.query(sql,(err, rows)=>{
+      if(err){
+        throw err;
+      }
+      else{
+        callback(null,rows);
+      }
+    });
+  }
+};
 
 usuarioModel.login = (usuarioData, callback) => {
   if(connection){
     const sql = `SELECT * FROM usuario WHERE
     EMAIL =  ${connection.escape(usuarioData.EMAIL)} AND ACTIVO = 1`;
-
+    console.log("Consulta " + sql);
     connection.query(sql,(err, row)=>{
 
       if(err){
+        console.log("err");
         throw err;
       }
       else if(row.length == 0){
+        console.log("No encontrado");
         callback('Usuario no encontrado',null);
       }
       else{
@@ -187,6 +257,7 @@ usuarioModel.login = (usuarioData, callback) => {
           callback(null,row);
         }
         else{
+          console.log("Contraseña incorrecta");
           callback('Password incorrecto',null);
         }
       }
@@ -199,6 +270,7 @@ usuarioModel.conocerID = (email, callback) =>{
   if(connection){
     const sql = `SELECT ID_USUARIO FROM usuario WHERE
     EMAIL =  ${connection.escape(email)}`;
+    console.log("Consulta: " + sql);
 
     connection.query(sql,(err, row)=>{
 
@@ -207,6 +279,26 @@ usuarioModel.conocerID = (email, callback) =>{
       }
       else if(row.length == 0){
         callback('No existe ese email',null);
+      }
+      else{
+        callback(null,row);
+      }
+    })
+  }
+}
+
+usuarioModel.conocerCentro = (idUsuario, callback) =>{
+  if(connection){
+    const sql = `SELECT ID_CENTRO FROM registrado WHERE
+    ID_USUARIO =  ${connection.escape(idUsuario)}`;
+
+    connection.query(sql,(err, row)=>{
+
+      if(err){
+        throw err;
+      }
+      else if(row.length == 0){
+        callback('Usuario no trabaja en ningun centro',null);
       }
       else{
         callback(null,row);
