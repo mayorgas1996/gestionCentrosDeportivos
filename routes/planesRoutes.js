@@ -119,7 +119,7 @@ router.put('/planes/:id',ensureToken,(req,res) => {
     }
     else{
       const planData = {
-        ID_CENTRO     : req.params.id,
+        ID_PLAN     : req.params.id,
         NOMBRE : req.body.NOMBRE,
         GASTOS_INSCRIPCION : req.body.GASTOS_INSCRIPCION,
         COSTE_MENSUAL : req.body.COSTE_MENSUAL,
