@@ -235,19 +235,20 @@ router.put('/tecnicos/mi_perfil/:id',ensureToken,(req,res) => {
     else{
       const tecnicoData = {
         ID_TECNICO: req.params.id,
-        PASSWORD: bcrypt.hashSync(req.body.PASSWORD, salt),
-        NOMBRE  : req.body.NOMBRE,
-        EMAIL   : req.body.EMAIL,
-        TELEFONO: req.body.TELEFONO,
-        DOMICILIO: req.body.DOMICILIO,
-        MUNICIPIO: req.body.MUNICIPIO,
-        PROVINCIA: req.body.PROVINCIA
+        PASSWORD: bcrypt.hashSync(req.body.password, salt),
+        NOMBRE  : req.body.nombre,
+        EMAIL   : req.body.email,
+        TELEFONO: req.body.telefono,
+        DOMICILIO: req.body.domicilio,
+        MUNICIPIO: req.body.municipio,
+        PROVINCIA: req.body.provincia
       };
       Tecnico.updateMyTecnico(tecnicoData,(err,data) => {
         if(data && data.mensaje){
           res.status(200).json(data);
         }
         else{
+          console.log("Error");
           res.status(500).json({
             success: false,
             mensaje: 'Error'
