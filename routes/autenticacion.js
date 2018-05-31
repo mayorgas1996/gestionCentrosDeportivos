@@ -55,18 +55,24 @@ router.post('/login/administrador',(req,res) => {
 router.post('/login/usuario',(req,res) => {
   Usuario.conocerID(req.body.EMAIL,(err,data) =>{
     if(data){
+      Usuario.conocerCentro(data[0].ID_USUARIO,(err,dato) =>{
+        if(dato){
+          console.log("Se sabe id y centro");
       const usuarioData = {
         ID_USUARIO   : data[0].ID_USUARIO,
         EMAIL        : req.body.EMAIL,
-        PASSWORD     : req.body.PASSWORD
+        PASSWORD     : req.body.PASSWORD,
+        ID_CENTRO    : dato[0].ID_CENTRO
       };
       Usuario.login(usuarioData, (err, data) =>{
         if(data){
+          console.log("Logueado");
           const token = jwt.sign({usuarioData},'usuario');
           res.status(200).json({
             success: true,
             mensaje: 'Usuario - Inicio de sesión correctamente',
             datos: JSON.stringify(data),
+            id_centro: usuarioData.ID_CENTRO,
             token: token
           })
         }
@@ -85,6 +91,8 @@ router.post('/login/usuario',(req,res) => {
       })
     }
   })
+}
+})
 })
 
 router.post('/login/director',(req,res) => {
