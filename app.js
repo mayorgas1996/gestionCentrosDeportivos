@@ -18,6 +18,8 @@ var salas = require('./routes/salasRoutes');
 var contabilidad = require('./routes/contabilidadRoutes');
 var ejercicios = require('./routes/ejerciciosRoutes');
 var rutinas = require('./routes/rutinasRoutes');
+var estadisticas = require('./routes/estadisticasRoutes');
+
 
 var login = require('./routes/autenticacion');
 
@@ -69,6 +71,7 @@ app.use('/',salas);
 app.use('/',contabilidad);
 app.use('/',ejercicios);
 app.use('/',rutinas);
+app.use('/',estadisticas);
 
 app.use('/',login);
 
