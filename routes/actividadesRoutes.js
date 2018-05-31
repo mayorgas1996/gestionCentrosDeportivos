@@ -51,6 +51,132 @@ router.get('/actividades/:id',ensureToken, (req,res) => {
   })
 });
 
+router.get('/actividades/dia_semana/:id',ensureToken, (req,res) => {
+
+  jwt.verify(req.token,'usuario',(err,data) =>{
+    if(err){
+      res.sendStatus(403); //Acceso no permitido
+    }
+    else{
+      var token = req.headers['authorization'];
+      token = token.replace('Bearer ', '');
+      var decoded = jwtDecode(token);
+      var fecha = new Date(req.params.id);
+      var dia_semana = fecha.getDay();
+      Actividad.getActividadesPorDia(decoded.usuarioData.ID_CENTRO, dia_semana, req.params.id, (err,data) =>{
+        if(err != null){
+          res.status(500).json({
+            success: false,
+            mensaje: 'Error buscando actividades '
+          })
+        }
+        else{
+          res.status(200).json(data);
+        }
+
+      })
+    }
+  })
+});
+
+router.get('/actividades/asistencias/:id',ensureToken, (req,res) => {
+
+  jwt.verify(req.token,'usuario',(err,data) =>{
+    if(err){
+      res.sendStatus(403); //Acceso no permitido
+    }
+    else{
+      var token = req.headers['authorization'];
+      token = token.replace('Bearer ', '');
+      var decoded = jwtDecode(token);
+      var fecha = new Date(req.params.id);
+      var dia_semana = fecha.getDay();
+      Actividad.getAsistenciasPorDia(dia_semana, decoded.usuarioData.ID_USUARIO, req.params.id, (err,data) =>{
+        if(err != null){
+          res.status(500).json({
+            success: false,
+            mensaje: 'Error buscando asistencias'
+          })
+        }
+        else{
+          res.status(200).json(data);
+        }
+
+      })
+    }
+  })
+});
+
+router.post('/actividades/asistir',ensureToken, (req,res) => {
+
+  jwt.verify(req.token,'usuario',(err,data) =>{
+    if(err){
+      res.sendStatus(403); //Acceso no permitido
+    }
+    else{
+      var token = req.headers['authorization'];
+      token = token.replace('Bearer ', '');
+      var decoded = jwtDecode(token);
+
+      const asistenciaData = {
+        ID_USUARIO: decoded.usuarioData.ID_USUARIO,
+        ID_SALA : req.body.ID_SALA,
+        FECHA  : req.body.FECHA,
+        DIA_SEMANA: req.body.DIA_SEMANA,
+        HORA_INICIO: req.body.HORA_INICIO
+      };
+
+      Actividad.registrarAsistencia(asistenciaData, (err,data) =>{
+        if(err){
+          res.status(500).json({
+            success: false,
+            mensaje: 'Error deleting asistencia'
+          })
+        }
+        else{
+          res.status(200).json(data);
+        }
+
+      })
+    }
+  })
+});
+
+router.post('/actividades/no_asistir',ensureToken, (req,res) => {
+
+  jwt.verify(req.token,'usuario',(err,data) =>{
+    if(err){
+      res.sendStatus(403); //Acceso no permitido
+    }
+    else{
+      var token = req.headers['authorization'];
+      token = token.replace('Bearer ', '');
+      var decoded = jwtDecode(token);
+
+      const asistenciaData = {
+        ID_USUARIO: decoded.usuarioData.ID_USUARIO,
+        ID_SALA : req.body.ID_SALA,
+        FECHA  : req.body.FECHA,
+        DIA_SEMANA: req.body.DIA_SEMANA,
+        HORA_INICIO: req.body.HORA_INICIO
+      };
+
+      Actividad.borrarAsistencia(asistenciaData, (err,data) =>{
+        if(data && data.mensaje){
+          res.status(200).json(data);
+        }
+        else{
+          res.status(500).json({
+            success: false,
+            mensaje: 'Error deleting asistencia'
+          })
+        }
+
+      })
+    }
+  })
+});
+
 router.post('/actividades',ensureToken,(req,res) => {
   jwt.verify(req.token,'director',(err,data) =>{
     if(err){
