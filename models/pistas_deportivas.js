@@ -24,6 +24,39 @@ pistaDeportivaModel.getPistasDelCentro = (id_centro,callback) =>{
   }
 };
 
+pistaDeportivaModel.getPistasDisponiblesDelCentro = (id_centro,callback) =>{
+  if(connection){
+    const sql = `SELECT pista_deportiva.ID_PISTA, pista_deportiva.NOMBRE,pista_deportiva.PRECIO_SIN_LUZ,pista_deportiva.PRECIO_CON_LUZ,TIME_FORMAT(pista_deportiva.HORA_APERTURA, '%H') AS HORA_APERTURA, TIME_FORMAT(pista_deportiva.HORA_CIERRE, '%H') AS HORA_CIERRE,pista_deportiva.HORA_INICIO_LUZ FROM existen RIGHT JOIN pista_deportiva on existen.ID_PISTA = pista_deportiva.ID_PISTA WHERE ID_CENTRO = ${connection.escape(id_centro)} and ACTIVO = 1`
+
+    connection.query(sql,id_centro,(err, rows)=>{
+        if(err){
+          throw err;
+        }
+        else{
+          callback(null,rows);
+        }
+    });
+  }
+};
+
+pistaDeportivaModel.getOcupacion = (id_pista, fecha ,callback) =>{
+  if(connection){
+    const sql = `SELECT TIME_FORMAT(HORA, '%H') AS OCUPADA FROM reserva WHERE ID_PISTA=${connection.escape(id_pista)} and reserva.FECHA = ${connection.escape(fecha)}`
+
+    connection.query(sql,(err, rows)=>{
+        if(err){
+          throw err;
+        }
+        else if(rows.length == 0){
+          callback(null,[]);
+        }
+        else{
+          callback(null,rows);
+        }
+    });
+  }
+};
+
 pistaDeportivaModel.getPista = (id_pista,callback) =>{
   if(connection){
 
@@ -60,6 +93,7 @@ pistaDeportivaModel.crearReserva = (reservaData, callback) =>{
   if(connection){
     connection.query('INSERT INTO reserva SET ?', reservaData, (err, result) =>{
       if(err){
+        console.log("Reserva error: " + err);
         throw err;
       }
       else{

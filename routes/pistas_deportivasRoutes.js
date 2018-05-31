@@ -27,6 +27,41 @@ router.get('/pistas',ensureToken, (req,res) => {
   })
 });
 
+router.get('/pistas_disponibles',ensureToken, (req,res) => {
+  jwt.verify(req.token,'usuario',(err,data) =>{
+    if(err){
+      res.sendStatus(403); //Acceso no permitido
+    }
+    else{
+      var token = req.headers['authorization'];
+      token = token.replace('Bearer ', '');
+      var decoded = jwtDecode(token);
+
+      PistaDeportiva.getPistasDisponiblesDelCentro(decoded.usuarioData.ID_CENTRO,(err,data) =>{
+        res.status(200).json(data);
+      })
+    }
+  })
+});
+
+
+router.get('/pistas/:id_pista/ocupacion/:fecha',ensureToken, (req,res) => {
+  jwt.verify(req.token,'usuario',(err,data) =>{
+    if(err){
+      res.sendStatus(403); //Acceso no permitido
+    }
+    else{
+      var token = req.headers['authorization'];
+      token = token.replace('Bearer ', '');
+      var decoded = jwtDecode(token);
+      console.log("Ocupación pista: " + req.params.id_pista + " fecha: " + req.params.fecha);
+      PistaDeportiva.getOcupacion(req.params.id_pista, req.params.fecha,(err,data) =>{
+        res.status(200).json(data);
+      })
+    }
+  })
+});
+
 router.get('/pistas/:id',ensureToken, (req,res) => {
   jwt.verify(req.token,'director',(err,data) =>{
     if(err){
@@ -200,9 +235,8 @@ router.post('/pistas/:id/reservar',ensureToken,(req,res) => {
       const reservaData = {
         ID_USUARIO : decoded.usuarioData.ID_USUARIO,
         ID_PISTA: req.params.id,
-        FECHA: req.body.fecha,
-        HORA_INICIO: req.body.hora_inicio,
-        HORA_FIN: req.body.hora_fin
+        FECHA: req.body.FECHA,
+        HORA: req.body.HORA
       }
 
       PistaDeportiva.crearReserva(reservaData, (err,data) =>{
