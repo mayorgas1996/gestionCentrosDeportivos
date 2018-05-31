@@ -39,6 +39,64 @@ actividadModel.getHorarioDelCentro = (id_centro,callback) =>{
   }
 };
 
+actividadModel.getActividadesPorDia = (id_centro, dia_semana,fecha,callback) =>{
+  if(connection){
+
+    //Manipular el dia de la semana y pasar a número para que lo pueda leer la consulta correctamente
+    console.log("centro: " +id_centro + " dia "+ dia_semana + " fecha: " + fecha);
+    const sql = `SELECT
+    impartida.*,
+    tecnico.NOMBRE AS TECNICO,
+    SALA.NOMBRE AS SALA,
+    sala.AFORO,
+    actividad.NOMBRE AS ACTIVIDAD,
+    actividad.TIPO_ACTIVIDAD,
+    (SELECT COUNT(*)
+        FROM apuntado
+            WHERE ID_SALA = sala.ID_SALA AND FECHA = ${connection.escape(fecha)} AND DIA_SEMANA = ${connection.escape(dia_semana)} AND HORA_INICIO = impartida.HORA_INICIO) as APUNTADOS
+        FROM impartida JOIN propone JOIN tecnico JOIN sala JOIN actividad
+            ON tecnico.ID_TECNICO = impartida.ID_TECNICO AND
+                impartida.ID_SALA = sala.ID_SALA AND
+                actividad.ID_ACTIVIDAD = impartida.ID_ACTIVIDAD AND
+                impartida.ID_ACTIVIDAD = propone.ID_ACTIVIDAD
+                    WHERE impartida.DIA_SEMANA = ${connection.escape(dia_semana)} AND propone.ID_CENTRO = ${connection.escape(id_centro)} `
+
+    console.log("Consulta: " + sql);
+
+    connection.query(sql,(err, rows)=>{
+        if(err){
+          console.log("Hay error: " + err);
+          throw err;
+        }
+        else{
+          callback(null,rows);
+        }
+    });
+  }
+};
+
+actividadModel.getAsistenciasPorDia = (dia_semana, id_usuario ,fecha,callback) =>{
+  if(connection){
+
+    //Manipular el dia de la semana y pasar a número para que lo pueda leer la consulta correctamente
+    console.log("dia_semana: " +dia_semana + " usuario "+ id_usuario + " fecha: " + fecha);
+    const sql = `SELECT apuntado.HORA_INICIO, apuntado.ID_SALA FROM apuntado WHERE apuntado.ID_USUARIO = ${connection.escape(id_usuario)} AND apuntado.FECHA = ${connection.escape(fecha)} AND apuntado.DIA_SEMANA = ${connection.escape(dia_semana)} `
+
+
+    connection.query(sql,(err, rows)=>{
+        if(err){
+          console.log("Hay error: " + err);
+          throw err;
+        }
+        else{
+          callback(null,rows);
+        }
+    });
+  }
+};
+
+
+
 actividadModel.getActividad = (id_actividad,callback) =>{
   if(connection){
 
@@ -57,8 +115,6 @@ actividadModel.getActividad = (id_actividad,callback) =>{
 };
 
 //ACTIVIDADES IMPARTIDAS EN UN CENTRO
-//SELECT * from propone join impartida on propone.ID_ACTIVIDAD = impartida.ID_ACTIVIDAD where propone.ID_CENTRO = 2 and impartida.DIA_SEMANA = 1 and impartida.HORA_INICIO>= CAST('09:00:00' AS time) and impartida.HORA_FIN<= CAST('10:00:00' AS time)
-
 actividadModel.tecnicosDisponibles = (disponibilidadData,callback) =>{
   if(connection){
 
@@ -119,6 +175,37 @@ actividadModel.insertImpartida = (impartidaData, callback) =>{
       else{
         callback(null,{
           'insertId':result.insertId
+        })
+      }
+    })
+  }
+};
+
+actividadModel.registrarAsistencia = (asistenciaData, callback) =>{
+  if(connection){
+    console.log("Registrando asistencia: " + JSON.stringify(asistenciaData));
+    connection.query('INSERT INTO apuntado SET ?', asistenciaData, (err, result) =>{
+      if(err){
+        throw err;
+      }
+      else{
+        callback(null,true);
+      }
+    })
+  }
+};
+
+actividadModel.borrarAsistencia = (asistenciaData, callback) =>{
+  if(connection){
+    const sql = `DELETE FROM apuntado WHERE ID_USUARIO = ${connection.escape(asistenciaData.ID_USUARIO)} AND FECHA = ${connection.escape(asistenciaData.FECHA)} AND ID_SALA = ${connection.escape(asistenciaData.ID_SALA)} AND DIA_SEMANA = ${connection.escape(asistenciaData.DIA_SEMANA)} AND HORA_INICIO = ${connection.escape(asistenciaData.HORA_INICIO)} `;
+
+    connection.query(sql, (err, result) =>{
+      if (err){
+        throw err;
+      }
+      else{
+        callback(null,{
+          'mensaje':'Asistencia borrada'
         })
       }
     })
