@@ -380,6 +380,37 @@ router.post('/horario/actividades/',ensureToken,(req,res) => {
   })
 })
 
+router.post('/horario/borrar/actividad/',ensureToken,(req,res) => {
+  var token = req.headers['authorization'];
+  token = token.replace('Bearer ', '');
+  var decoded = jwtDecode(token);
+  jwt.verify(req.token,'director',(err,data) =>{
+    if(err){
+      res.sendStatus(403); //Acceso no permitido
+    }
+    else{
+      const impartidaData = {
+        DIA_SEMANA   : req.body.DIA_SEMANA  ,
+        HORA_INICIO  : req.body.HORA_INICIO ,
+        ID_SALA      : req.body.ID_SALA
+      };
+
+      Actividad.deleteImpartida(impartidaData,(err,data) => {
+        if(data){
+          res.status(200).json(data);
+        }
+        else{
+          res.status(500).json({
+            success: false,
+            mensaje: 'Error'
+          })
+        }
+
+      })
+    }
+  })
+})
+
 router.post('/actividades/:id',ensureToken,(req,res) => {
   jwt.verify(req.token,'director',(err,data) =>{
     if(err){

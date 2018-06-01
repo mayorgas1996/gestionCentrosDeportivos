@@ -26,7 +26,9 @@ actividadModel.getActividadesDelCentro = (id_centro,callback) =>{
 
 actividadModel.getHorarioDelCentro = (id_centro,callback) =>{
   if(connection){
-    const sql = `SELECT actividad.NOMBRE AS ACTIVIDAD, impartida.DIA_SEMANA, impartida.HORA_INICIO, impartida.HORA_FIN, tecnico.NOMBRE AS TECNICO, sala.NOMBRE AS SALA FROM impartida join propone join tecnico join sala join actividad on impartida.ID_ACTIVIDAD = actividad.ID_ACTIVIDAD and impartida.ID_ACTIVIDAD = propone.ID_ACTIVIDAD and tecnico.ID_TECNICO = impartida.ID_TECNICO and sala.ID_SALA = impartida.ID_SALA WHERE propone.ID_CENTRO = ${connection.escape(id_centro)} ORDER BY impartida.DIA_SEMANA ASC `
+    const sql = `SELECT actividad.NOMBRE AS ACTIVIDAD, impartida.DIA_SEMANA, impartida.HORA_INICIO, impartida.HORA_FIN, tecnico.NOMBRE AS TECNICO, sala.NOMBRE AS SALA, sala.ID_SALA
+    FROM impartida join propone join tecnico join sala join actividad on impartida.ID_ACTIVIDAD = actividad.ID_ACTIVIDAD and impartida.ID_ACTIVIDAD = propone.ID_ACTIVIDAD and tecnico.ID_TECNICO = impartida.ID_TECNICO and sala.ID_SALA = impartida.ID_SALA
+    WHERE propone.ID_CENTRO = ${connection.escape(id_centro)} ORDER BY impartida.DIA_SEMANA ASC `
 
     connection.query(sql,(err, rows)=>{
         if(err){
@@ -181,9 +183,26 @@ actividadModel.insertImpartida = (impartidaData, callback) =>{
   }
 };
 
+actividadModel.deleteImpartida = (impartidaData, callback) =>{
+  if(connection){
+    const sql = `DELETE FROM IMPARTIDA WHERE ID_SALA = ${connection.escape(impartidaData.ID_SALA)} AND DIA_SEMANA = ${connection.escape(impartidaData.DIA_SEMANA)} AND HORA_INICIO = ${connection.escape(impartidaData.HORA_INICIO)}`;
+
+    connection.query(sql, (err, result) =>{
+      if(err){
+        throw err;
+      }
+      else{
+        callback(null,{
+          'insertId':result.insertId
+        })
+      }
+    })
+  }
+};
+
+
 actividadModel.registrarAsistencia = (asistenciaData, callback) =>{
   if(connection){
-    console.log("Registrando asistencia: " + JSON.stringify(asistenciaData));
     connection.query('INSERT INTO apuntado SET ?', asistenciaData, (err, result) =>{
       if(err){
         throw err;
